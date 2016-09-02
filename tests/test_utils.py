@@ -46,7 +46,7 @@ class TestUtils(TestCase):
         status code is required.
         """
         responses.add(responses.GET, settings.WP_URL + 'wp-json/posts',
-                      body={'error': 'not found'}, status=404,
+                      status=404,
                       content_type='application/json')
 
         posts = self.connector.get_posts()
