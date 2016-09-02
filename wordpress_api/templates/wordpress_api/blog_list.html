@@ -1,0 +1,65 @@
+<form action="{% url 'wordpress_api_blog_list' %}" method="GET">
+  <div class="form-group">
+    <label class="sr-only">Search</label>
+    <input type="search" name='q' class="form-control" placeholder="Search..." value="{% if search %}{{ search }}{% endif %}">
+  </div>
+  <button type="submit" class="btn btn-primary btn-md">SEARCH</button>
+</form>
+<div class="row">
+  <div class="blog-posts">
+
+  {% for blog in blogs %}
+    <div class="col-md-6">
+          <a href="{% url 'wordpress_api_blog_detail' blog.slug %}">
+            {% if blog.featured_image %}
+                {% if blog.featured_image.errors.json_user_cannot_read %}
+                    <img src="" alt="default image if there is no blog image">
+                {% else %}
+                  {% if blog.featured_image.attachment_meta.sizes.medium.url %}
+                    <img src="{{ blog.featured_image.attachment_meta.sizes.medium.url }}" alt="blog image from wordpress post">
+                  {% elif blog.featured_image.source %}
+                    <img src="{{ blog.featured_image.source }}" alt="blog image from wordpress post">
+                  {% else %}
+                    <img src="{{ blog.featured_image.attachment_meta.sizes.thumbnail.url }}" alt="blog image from wordpress post">
+                  {% endif %}
+                {% endif %}
+            {% else %}
+                <img src="" alt="default image if there is no blog image">
+            {% endif %}
+          </a>
+
+          <a href="{% url 'wordpress_api_blog_detail' blog.slug %}"><h3>{{ blog.title | striptags | safe }}</h3></a>
+          <small>
+              <small style="font-size:12px">{{ blog.author.name }}</small>&nbsp;&nbsp;&nbsp;<small style="font-size:12px">{{ blog.bdate }}</small>
+          </small>
+          <p>{{ blog.excerpt | striptags | safe }}<a href="{% url 'wordpress_api_blog_detail' blog.slug %}">Continue reading</a></p>
+    </div>
+    {% empty %}
+    <p>
+          Your search "{{ search }}" did not match any results.
+    </p>
+  {% endfor %}
+  </div>
+</div>
+
+    {% if total_pages > 1  %}
+  <div class="row">
+    <div class="col-xs-12 text-center">
+      <ul class="pagination pagination-lg">
+        {% if current_page > 1 %}
+        <li>
+          <a href="{{ request.path }}?page={{ previous_page }}{% if search %}&q={{ search }}{% endif %}">{{ previous_page }}</a>
+        </li>
+        {% endif %}
+        <li class="active">
+          <a href="#">{{ current_page }}</a>
+        </li>
+        {% if current_page < total_pages %}
+        <li>
+          <a href="{{ request.path }}?page={{ next_page }}{% if search %}&q={{ search }}{% endif %}">{{ next_page }}</a>
+        </li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+    {% endif %}
