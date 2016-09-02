@@ -45,6 +45,7 @@ setup(
     install_requires=[
         'requests==2.11.1',
         'iso8601==0.1.11',
+        'six==1.10.0',
     ],
     license="MIT",
     zip_safe=False,

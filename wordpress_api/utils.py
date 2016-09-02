@@ -1,4 +1,5 @@
 import requests
+import six
 from django.conf import settings
 from requests.exceptions import ConnectionError
 
@@ -40,7 +41,7 @@ class WPApiConnector():
         if custom_type is not None:
             query += '&type=%s' % custom_type
         if wp_filter is not None:
-            for filter_type, filter_content in wp_filter.iteritems():
+            for filter_type, filter_content in six.iteritems(wp_filter):
                 query += '&filter[' + filter_type + ']=' +\
                     filter_content
             query += '&filter[orderby]=' + orderby + order
