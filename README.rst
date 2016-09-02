@@ -8,6 +8,10 @@ Django Wordpres API
 .. image:: https://travis-ci.org/swappsco/django-wordpress-api.png?branch=master
     :target: https://travis-ci.org/swappsco/django-wordpress-api
 
+.. image:: https://coveralls.io/repos/github/swappsco/django-wordpress-api/badge.svg?branch=master
+	:target: https://coveralls.io/github/swappsco/django-wordpress-api?branch=master
+
+
 Easily Install your Wordpress blog in your Django project
 
 Documentation

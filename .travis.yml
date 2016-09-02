@@ -1,21 +1,25 @@
-# Config file for automatic testing at travis-ci.org
-
 language: python
-
 python:
-  - "3.5"
-  - "3.4"
-  - "3.3"
   - "2.7"
+  - "3.4"
+env:
+  matrix:
+   - DJANGO="Django<1.9"
+   - DJANGO="Django<1.10"
+# branches:
+#   only:
+#     - master
+#     - develop
+# command to install dependencies
+install:
+  - "pip install -q -e ."
+  - "pip install -q -r requirements.txt"
+  - pip install "$DJANGO"
+  - pip install python-coveralls
+  - pip install coverage
 
-before_install:
-  - pip install codecov
-
-# command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
-install: pip install -r requirements_test.txt
-
-# command to run tests using coverage, e.g. python setup.py test
-script: coverage run --source wordpress runtests.py
+# command to run tests
+script: "coverage run manage.py test"
 
 after_success:
-  - codecov
+- coveralls

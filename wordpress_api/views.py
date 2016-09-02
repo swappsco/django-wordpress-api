@@ -142,12 +142,12 @@ class CategoryBlogListView(ParentBlogView):
 
     def get(self, request, **kwargs):
         context = self.get_context_data(**kwargs)
+        category_name = None
         if context['blogs']:
             for category in context['blogs'][0]['terms']['category']:
                 if str(category['slug']) == kwargs.get('slug'):
                     category_name = category['name']
-        else:
-            category_name = None
+
         context['category_name'] = category_name
         return render(request, self.template_name, context)
 
