@@ -1,6 +1,6 @@
 from django.test import TestCase, override_settings
 import responses
-from .utils import WPApiConnector
+from wordpress_api.utils import WPApiConnector
 from django.conf import settings
 
 
