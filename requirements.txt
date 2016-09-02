@@ -3,3 +3,4 @@ django>=1.9.6
 # Additional requirements go here
 requests==2.11.1
 iso8601==0.1.11
+responses==0.5.1
