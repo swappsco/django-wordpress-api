@@ -10,7 +10,7 @@ Tests for `django-wordpress-api` models module.
 
 from django.test import TestCase
 
-from wordpress import models
+from wordpress_api import models
 
 
 class TestWordpress(TestCase):
