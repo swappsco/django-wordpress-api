@@ -8,7 +8,7 @@ try:
 except ImportError:
     from distutils.core import setup
 
-version = '0.1.0'
+version = '0.1.1'
 
 if sys.argv[-1] == 'publish':
     try:
@@ -33,16 +33,19 @@ history = open('HISTORY.rst').read().replace('.. :changelog:', '')
 setup(
     name='django-wordpress-api',
     version=version,
-    description="""Easily Install your Wordpress blog in your Django project""",
+    description="""Easily Install your Wordpress blog in your Django project using wp rest API v1""",
     long_description=readme + '\n\n' + history,
     author='Swapps',
     author_email='dev@swapps.io',
     url='https://github.com/swappsco/django-wordpress-api',
     packages=[
-        'wordpress',
+        'wordpress_api',
     ],
     include_package_data=True,
-    install_requires=[],
+    install_requires=[
+        'requests==2.11.1',
+        'iso8601==0.1.11',
+    ],
     license="MIT",
     zip_safe=False,
     keywords='django-wordpress-api',
