@@ -8,6 +8,7 @@ class WPApiConnector():
 
     def __init__(self):
         self.wp_url = settings.WP_URL
+        self.blog_per_page = settings.BLOG_POSTS_PER_PAGE
 
     def get_posts(self, wp_filter=None, search=None,
                   page_number=1, orderby='date', custom_type=None):
@@ -24,7 +25,7 @@ class WPApiConnector():
 
         http://wp-api.org/index-deprecated.html#posts_retrieve-posts
         """
-        if self.wp_url is '':
+        if not self.wp_url or not self.blog_per_page:
             return {'configuration_error': 'External url is not defined'}
         if orderby == 'title':
             order = '&filter[order]=ASC'
@@ -62,6 +63,10 @@ class WPApiConnector():
         return {'body': response.json(), 'headers': headers, }
 
     def get_tags(self):
+        """
+        Gets all the tags inside the wordpress application
+        """
+
         query = self.wp_url + "wp-json/taxonomies/post_tag/terms"
         try:
             response = requests.get(query)
@@ -77,6 +82,9 @@ class WPApiConnector():
         return response.json()
 
     def get_categories(self):
+        """
+        Gets all the categories inside the wordpress application
+        """
         query = self.wp_url + "wp-json/taxonomies/category/terms"
         try:
             response = requests.get(query)

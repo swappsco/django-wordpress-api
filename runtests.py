@@ -17,7 +17,7 @@ try:
             "django.contrib.auth",
             "django.contrib.contenttypes",
             "django.contrib.sites",
-            "wordpress",
+            "wordpress_api",
         ],
         SITE_ID=1,
         MIDDLEWARE_CLASSES=(),
