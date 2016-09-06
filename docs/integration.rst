@@ -19,11 +19,11 @@ You need two settings variables to be able to use the package:
     WP_URL = http://your-wordpress-app.com/
     BLOG_POSTS_PER_PAGE = <number-of-blogs-to-display-per-page>
 
-Remmember to add `WP REST API v1 <http://wp-api.org/index-deprecated.html>`_ to http://your-wordpress-app.com/ or this package will be useless.
+Remember to add `WP REST API v1 <http://wp-api.org/index-deprecated.html>`_ to http://your-wordpress-app.com/ or this package will be useless.
 
 
 Add django-wordpress-api
 ------------------------
-Add django-plans urls to your URL general configuration::
+Add django-wordpress-api urls to your URL general configuration::
 
     url(r'^blog/', include('wordpress_api.urls')),
