@@ -11,8 +11,13 @@ Django Wordpres API
 .. image:: https://coveralls.io/repos/github/swappsco/django-wordpress-api/badge.svg?branch=master
 	:target: https://coveralls.io/github/swappsco/django-wordpress-api?branch=master
 
+.. image:: https://readthedocs.org/projects/django-wordpress-api/badge/?version=latest
+	:target: http://django-wordpress-api.readthedocs.io/en/latest/?badge=latest
+
 
 Easily Install your Wordpress blog in your Django project
+
+This package  allows to communicate easily with any wordpress proyect that is using [WP REST API v1](http://wp-api.org/index-deprecated.html). Even though the WP REST API package is already on the 2 version; it is still on beta so it was decided that this package will only support v1 until v2 is out of beta.
 
 Documentation
 -------------
@@ -28,12 +33,18 @@ Install Django Wordpres API::
 
 Then use it in a project::
 
-    import wordpress
+    import wordpress_api
 
 Features
 --------
 
-* TODO
+* Connect to an external wordpress application
+* Retreives all the blog posts ordered by pages
+* Filter blog posts using several of the [available filters in WP REST API](http://wp-api.org/index-deprecated.html#posts_retrieve-posts)
+* Search blog posts using a keyword
+* order the blog posts by several attributes like author, title, type, etc; ascending and descending order (default order is descending date)
+* Retreive posts with a different type than "post"
+* Four Views to display the blog page, The Post detail, The Posts filtered by category and the Posts filtered by tag; All of this with the search by keyword option
 
 Running Tests
 --------------
@@ -43,8 +54,9 @@ Does the code actually work?
 ::
 
     source <YOURVIRTUALENV>/bin/activate
+    (myenv) $ pip install -r requirements.txt
     (myenv) $ pip install -r requirements_test.txt
-    (myenv) $ python runtests.py
+    (myenv) $ python manage.py test
 
 Credits
 ---------
