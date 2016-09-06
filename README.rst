@@ -1,5 +1,5 @@
 =============================
-Django Wordpres API
+Django Wordpress API
 =============================
 
 .. image:: https://badge.fury.io/py/django-wordpress-api.png
@@ -17,7 +17,9 @@ Django Wordpres API
 
 Easily Install your Wordpress blog in your Django project
 
-This package  allows to communicate easily with any wordpress proyect that is using [WP REST API v1](http://wp-api.org/index-deprecated.html). Even though the WP REST API package is already on the 2 version; it is still on beta so it was decided that this package will only support v1 until v2 is out of beta.
+This package  allows to communicate easily with any wordpress proyect that is using `WP REST API v1 <http://wp-api.org/index-deprecated.html>`_ .
+
+Even though the WP REST API package is already on the 2 version; it is still on beta so it was decided that this package will only support v1 until v2 is out of beta.
 
 Documentation
 -------------
@@ -40,7 +42,7 @@ Features
 
 * Connect to an external wordpress application
 * Retreives all the blog posts ordered by pages
-* Filter blog posts using several of the [available filters in WP REST API](http://wp-api.org/index-deprecated.html#posts_retrieve-posts)
+* Filter blog posts using several of the `available filters in WP REST API <http://wp-api.org/index-deprecated.html#posts_retrieve-posts>`_
 * Search blog posts using a keyword
 * order the blog posts by several attributes like author, title, type, etc; ascending and descending order (default order is descending date)
 * Retreive posts with a different type than "post"

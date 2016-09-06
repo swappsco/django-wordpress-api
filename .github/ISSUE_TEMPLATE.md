@@ -1,4 +1,4 @@
-* Django Wordpres API version:
+* Django Wordpress API version:
 * Django version:
 * Python version:
 * Operating System:
