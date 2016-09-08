@@ -17,7 +17,7 @@ Django Wordpress API
 
 Easily Install your Wordpress blog in your Django project
 
-This package  allows to communicate easily with any wordpress proyect that is using `WP REST API v1 <http://wp-api.org/index-deprecated.html>`_ .
+This package  allows to communicate easily with any wordpress project that is using `WP REST API v1 <http://wp-api.org/index-deprecated.html>`_ .
 
 Even though the WP REST API package is already on the 2 version; it is still on beta so it was decided that this package will only support v1 until v2 is out of beta.
 
@@ -41,11 +41,11 @@ Features
 --------
 
 * Connect to an external wordpress application
-* Retreives all the blog posts ordered by pages
+* Retrieves all the blog posts ordered by pages
 * Filter blog posts using several of the `available filters in WP REST API <http://wp-api.org/index-deprecated.html#posts_retrieve-posts>`_
 * Search blog posts using a keyword
 * order the blog posts by several attributes like author, title, type, etc; ascending and descending order (default order is descending date)
-* Retreive posts with a different type than "post"
+* Retrieve posts with a different type than "post"
 * Four Views to display the blog page, The Post detail, The Posts filtered by category and the Posts filtered by tag; All of this with the search by keyword option
 
 Running Tests
