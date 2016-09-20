@@ -1,7 +1,7 @@
 import requests
 import six
 from django.conf import settings
-from requests.exceptions import ConnectionError
+from requests.exceptions import ConnectionError, Timeout
 
 
 class WPApiConnector():
@@ -49,8 +49,8 @@ class WPApiConnector():
         if search is not None:
             query += '&filter[s]=' + search
         try:
-            response = requests.get(query)
-        except ConnectionError:
+            response = requests.get(query, timeout=30)
+        except (ConnectionError, Timeout):
             return {'server_error': 'The server is not reachable this moment\
                     please try again later'}
 
@@ -69,8 +69,8 @@ class WPApiConnector():
 
         query = self.wp_url + "wp-json/taxonomies/post_tag/terms"
         try:
-            response = requests.get(query)
-        except ConnectionError:
+            response = requests.get(query, timeout=30)
+        except (ConnectionError, Timeout):
             return {'server_error': 'The server is not reachable this moment\
                     please try again later'}
 
@@ -87,8 +87,8 @@ class WPApiConnector():
         """
         query = self.wp_url + "wp-json/taxonomies/category/terms"
         try:
-            response = requests.get(query)
-        except ConnectionError:
+            response = requests.get(query, timeout=30)
+        except (ConnectionError, Timeout):
             return {'server_error': 'The server is not reachable this moment\
                     please try again later'}
 
