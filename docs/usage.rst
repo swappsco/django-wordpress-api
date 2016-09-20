@@ -21,4 +21,4 @@ The basic django-wordpress-api urls are::
 
     http://localhost:8000/tag/(?P<slug>[-\w]+)/; displays the blogs in the tag identified with the given slug
 
-Else, If you want to retreive the blog posts in your custom views, you can use directly the WPApiConnector and its methods. You can check them at ``wordpress_api/utils.py``
+Else, If you want to retrieve the blog posts in your custom views, you can use directly the WPApiConnector and its methods. You can check them at ``wordpress_api/utils.py``
