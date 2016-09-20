@@ -61,7 +61,7 @@ class TestUtils(TestCase):
                       content_type='application/json')
 
         posts = self.connector.get_posts()
-        self.assertTrue('response_error' in posts.keys())
+        self.assertTrue('server_error' in posts.keys())
 
     @responses.activate
     def test_connector_uses_orderby(self):

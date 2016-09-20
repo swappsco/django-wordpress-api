@@ -56,7 +56,7 @@ class WPApiConnector():
 
         if response.status_code != 200:
             return {
-                'response_error': 'Server returned status code %i' % response.
+                'server_error': 'Server returned status code %i' % response.
                 status_code}
         headers = response.headers or {}
         headers.update({'request_url': query})
@@ -76,7 +76,7 @@ class WPApiConnector():
 
         if response.status_code != 200:
             return {
-                'response_error': 'Server returned status code %i' % response.
+                'server_error': 'Server returned status code %i' % response.
                 status_code}
 
         return response.json()
@@ -94,7 +94,7 @@ class WPApiConnector():
 
         if response.status_code != 200:
             return {
-                'response_error': 'Server returned status code %i' % response.
+                'server_error': 'Server returned status code %i' % response.
                 status_code}
 
         return response.json()
