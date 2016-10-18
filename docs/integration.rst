@@ -27,3 +27,15 @@ Add django-wordpress-api
 Add django-wordpress-api urls to your URL general configuration::
 
     url(r'^blog/', include('wordpress_api.urls')),
+
+
+Multilingual support
+------------------------
+
+At version 0.1.8 multilingual support was added. To use it, you need to install `WPML <https://wpml.org>`_ and `wpml wp rest api adapter plugin by aaltomeri <https://github.com/aaltomeri/wpml-wp-rest-api-adapter>`_ inside your wordpress site and set the following variable inside your settings.
+
+::
+
+    WP_API_ALLOW_LANGUAGE = True
+
+Inside the views, the language is supported using ``django.utils.translation.get_language``. If you are not using django translation, you can use the WPApiConnector.get_posts method directly and pass the language as the lang parameter. You can check how this work at ``wordpress_api/utils.py``

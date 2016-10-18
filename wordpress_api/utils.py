@@ -10,7 +10,7 @@ class WPApiConnector():
         self.wp_url = settings.WP_URL
         self.blog_per_page = settings.BLOG_POSTS_PER_PAGE
 
-    def get_posts(self, wp_filter=None, search=None,
+    def get_posts(self, wp_filter=None, search=None, lang=None,
                   page_number=1, orderby='date', custom_type=None):
         """
         get latests post from a wordpress blog.
@@ -48,6 +48,8 @@ class WPApiConnector():
             query += '&filter[orderby]=' + orderby + order
         if search is not None:
             query += '&filter[s]=' + search
+        if lang is not None:
+            query += '&lang=' + lang
         try:
             response = requests.get(query, timeout=30)
         except (ConnectionError, Timeout):
