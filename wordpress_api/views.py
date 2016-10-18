@@ -3,8 +3,9 @@ from django.shortcuts import render
 from django.views.generic import View
 from django.contrib import messages
 from django.http import Http404
+from django.utils.translation import get_language
+from django.conf import settings
 from .utils import WPApiConnector
-
 # Create your views here.
 
 
@@ -13,8 +14,21 @@ class ParentBlogView(View):
     Class that defines a method to calculate args for the wp_api
     on the fly. Most of the code of the other views is the same.
     """
+    def __init__(self, *args, **kwargs):
+        super(ParentBlogView, self).__init__(*args, **kwargs)
+        try:
+            allow_language = settings.WP_API_ALLOW_LANGUAGE
+            if allow_language:
+                self.blog_language = str(get_language())
+            else:
+                self.blog_language = 'en'
+        except AttributeError:
+            self.blog_language = 'en'
+
     def get_wp_api_kwargs(self, **kwargs):
-        wp_api = {'page_number': int(self.request.GET.get('page', 1))}
+        wp_api = {
+            'page_number': int(self.request.GET.get('page', 1)),
+            'lang': self.blog_language}
         return wp_api
 
     def get_context_data(self, **kwargs):
