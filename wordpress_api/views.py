@@ -49,7 +49,7 @@ class ParentBlogView(View):
         for blog in blogs['body']:
             if blog['excerpt'] is not None:
                 position = blog['excerpt'].find(
-                    'Continue reading <span class="screen-reader-text">')
+                    'Continue reading')
                 if position != -1:
                     blog['excerpt'] = blog['excerpt'][:position]
             blog['slug'] = str(blog['slug'])
