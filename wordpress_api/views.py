@@ -188,3 +188,26 @@ class TagBlogListView(ParentBlogView):
             category_name = None
         context['tag_name'] = category_name
         return render(request, self.template_name, context)
+
+
+class BlogByAuthorListView(ParentBlogView):
+    """
+    View to display all blogs written by given author
+    """
+    template_name = 'wordpress_api/blog_list.html'
+
+    def get_wp_api_kwargs(self, **kwargs):
+        wp_api = super(BlogByAuthorListView, self).get_wp_api_kwargs(**kwargs)
+        wp_api['wp_filter'] = {'author_name': kwargs.get('slug')}
+        return wp_api
+
+    def get(self, request, **kwargs):
+        context = self.get_context_data(**kwargs)
+        author_name = None
+        if context['blogs']:
+            if str(context[
+                    'blogs'][0]['author']['slug']) == kwargs.get('slug'):
+                author_name = kwargs.get('slug')
+
+        context['author_name'] = author_name
+        return render(request, self.template_name, context)

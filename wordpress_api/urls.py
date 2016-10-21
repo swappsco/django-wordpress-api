@@ -13,4 +13,7 @@ urlpatterns = [
     url(r'^tag/(?P<slug>[-\w]+)/$',
         views.TagBlogListView.as_view(),
         name='wordpress_api_blog_tag_list'),
+    url(r'^author/(?P<slug>[-\w]+)/$',
+        views.BlogByAuthorListView.as_view(),
+        name='wordpress_api_blog_by_author_list'),
 ]
