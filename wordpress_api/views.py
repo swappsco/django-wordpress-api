@@ -47,10 +47,11 @@ class ParentBlogView(View):
                                  blogs['server_error'])
             raise Http404
         for blog in blogs['body']:
-            position = blog['excerpt'].find(
-                'Continue reading <span class="screen-reader-text">')
-            if position != -1:
-                blog['excerpt'] = blog['excerpt'][:position]
+            if blog['excerpt'] is not None:
+                position = blog['excerpt'].find(
+                    'Continue reading <span class="screen-reader-text">')
+                if position != -1:
+                    blog['excerpt'] = blog['excerpt'][:position]
             blog['slug'] = str(blog['slug'])
             blog['bdate'] = iso8601.parse_date(blog['date']).date()
         context = {
