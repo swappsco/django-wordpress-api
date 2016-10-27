@@ -64,12 +64,14 @@ class WPApiConnector():
         headers.update({'request_url': query})
         return {'body': response.json(), 'headers': headers, }
 
-    def get_tags(self):
+    def get_tags(self, lang=None):
         """
         Gets all the tags inside the wordpress application
         """
 
-        query = self.wp_url + "wp-json/taxonomies/post_tag/terms"
+        query = self.wp_url + "wp-json/taxonomies/post_tag/terms/"
+        if lang is not None:
+            query = query + '?lang=' + lang
         try:
             response = requests.get(query, timeout=30)
         except (ConnectionError, Timeout):
@@ -83,11 +85,13 @@ class WPApiConnector():
 
         return response.json()
 
-    def get_categories(self):
+    def get_categories(self, lang=None):
         """
         Gets all the categories inside the wordpress application
         """
-        query = self.wp_url + "wp-json/taxonomies/category/terms"
+        query = self.wp_url + "wp-json/taxonomies/category/terms/"
+        if lang is not None:
+            query = query + '?lang=' + lang
         try:
             response = requests.get(query, timeout=30)
         except (ConnectionError, Timeout):
