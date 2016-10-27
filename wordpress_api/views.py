@@ -38,8 +38,8 @@ class ParentBlogView(View):
         if not isinstance(page, int):
             page = 1
         blogs = WPApiConnector().get_posts(**api_kwargs)
-        tags = WPApiConnector().get_tags()
-        categories = WPApiConnector().get_categories()
+        tags = WPApiConnector().get_tags(lang=self.blog_language)
+        categories = WPApiConnector().get_categories(lang=self.blog_language)
 
         if 'server_error' in blogs or\
            'server_error' in tags:
@@ -102,8 +102,8 @@ class BlogView(ParentBlogView):
     def get_context_data(self, **kwargs):
         api_kwargs = self.get_wp_api_kwargs(**kwargs)
         blog = WPApiConnector().get_posts(**api_kwargs)
-        tags = WPApiConnector().get_tags()
-        categories = WPApiConnector().get_categories()
+        tags = WPApiConnector().get_tags(lang=self.blog_language)
+        categories = WPApiConnector().get_categories(lang=self.blog_language)
         if 'server_error' in blog or\
            'server_error' in tags:
             messages.add_message(self.request, messages.ERROR,

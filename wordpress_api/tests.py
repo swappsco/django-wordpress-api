@@ -81,7 +81,7 @@ class TestUtils(TestCase):
         status code is required.
         """
         responses.add(responses.GET,
-                      settings.WP_URL + 'wp-json/taxonomies/post_tag/terms',
+                      settings.WP_URL + 'wp-json/taxonomies/post_tag/terms/',
                       status=404,
                       content_type='application/json')
 
@@ -106,7 +106,7 @@ class TestUtils(TestCase):
         status code is required.
         """
         responses.add(responses.GET,
-                      settings.WP_URL + 'wp-json/taxonomies/category/terms',
+                      settings.WP_URL + 'wp-json/taxonomies/category/terms/',
                       status=404,
                       content_type='application/json')
 
@@ -218,11 +218,11 @@ class TestViews(TestCase):
                       **self.default_response_kwargs)
         responses.add(
             responses.GET, settings.WP_URL +
-            'wp-json/taxonomies/post_tag/terms',
+            'wp-json/taxonomies/post_tag/terms/',
             **self.default_response_kwargs)
         responses.add(
             responses.GET, settings.WP_URL +
-            'wp-json/taxonomies/category/terms',
+            'wp-json/taxonomies/category/terms/',
             **self.default_response_kwargs)
         response = self.client.get(reverse('wordpress_api_blog_list'))
         self.assertEqual(response.status_code, 200)
@@ -246,11 +246,11 @@ class TestViews(TestCase):
                       **self.default_response_kwargs)
         responses.add(
             responses.GET, settings.WP_URL +
-            'wp-json/taxonomies/post_tag/terms',
+            'wp-json/taxonomies/post_tag/terms/',
             **self.default_response_kwargs)
         responses.add(
             responses.GET, settings.WP_URL +
-            'wp-json/taxonomies/category/terms',
+            'wp-json/taxonomies/category/terms/',
             **self.default_response_kwargs)
         response = self.client.get(
             reverse('wordpress_api_blog_detail', args=('test-blog',)))
@@ -281,7 +281,7 @@ class TestViews(TestCase):
         responses.add(responses.GET, settings.WP_URL + 'wp-json/posts',
                       **data)
         responses.add(responses.GET,
-                      settings.WP_URL + 'wp-json/taxonomies/post_tag/terms',
+                      settings.WP_URL + 'wp-json/taxonomies/post_tag/terms/',
                       **data)
         response = self.client.get(
             reverse('wordpress_api_blog_detail', args=('test-blog',)))
@@ -297,11 +297,11 @@ class TestViews(TestCase):
                       **self.default_response_kwargs)
         responses.add(
             responses.GET, settings.WP_URL +
-            'wp-json/taxonomies/post_tag/terms',
+            'wp-json/taxonomies/post_tag/terms/',
             **self.default_response_kwargs)
         responses.add(
             responses.GET, settings.WP_URL +
-            'wp-json/taxonomies/category/terms',
+            'wp-json/taxonomies/category/terms/',
             **self.default_response_kwargs)
         response = self.client.get(
             reverse('wordpress_api_blog_category_list',
@@ -330,11 +330,11 @@ class TestViews(TestCase):
                       **self.default_response_kwargs)
         responses.add(
             responses.GET, settings.WP_URL +
-            'wp-json/taxonomies/post_tag/terms',
+            'wp-json/taxonomies/post_tag/terms/',
             **self.default_response_kwargs)
         responses.add(
             responses.GET, settings.WP_URL +
-            'wp-json/taxonomies/category/terms',
+            'wp-json/taxonomies/category/terms/',
             **self.default_response_kwargs)
         response = self.client.get(
             reverse('wordpress_api_blog_tag_list',
@@ -363,11 +363,11 @@ class TestViews(TestCase):
                       **self.default_response_kwargs)
         responses.add(
             responses.GET, settings.WP_URL +
-            'wp-json/taxonomies/post_tag/terms',
+            'wp-json/taxonomies/post_tag/terms/',
             **self.default_response_kwargs)
         responses.add(
             responses.GET, settings.WP_URL +
-            'wp-json/taxonomies/category/terms',
+            'wp-json/taxonomies/category/terms/',
             **self.default_response_kwargs)
         response = self.client.get(
             reverse('wordpress_api_blog_by_author_list',
