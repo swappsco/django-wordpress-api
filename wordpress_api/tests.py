@@ -17,7 +17,7 @@ Tests for `django-wordpress-api` models module.
 
 class TestUtils(TestCase):
     """
-    Tests for 508.wp_api.utils
+    Tests for wordpress_api.utils
     """
 
     def setUp(self):
@@ -39,7 +39,7 @@ class TestUtils(TestCase):
         posts = connector.get_posts()
         self.assertTrue('configuration_error' in posts.keys())
 
-    @override_settings(WP_URL='http://this_is_some_unvalid_url/')
+    @responses.activate
     def test_connection_returns_error(self):
         """
         If server cannot be reached a message with server error
@@ -61,6 +61,66 @@ class TestUtils(TestCase):
                       content_type='application/json')
 
         posts = self.connector.get_posts()
+        self.assertTrue('server_error' in posts.keys())
+
+    @responses.activate
+    def test_connection_error_propagates(self):
+        """
+        When we get a connection error from the server,
+        an error indicating that something happened along with the
+        status code is required.
+        """
+        posts = self.connector.get_posts()
+        self.assertTrue('server_error' in posts.keys())
+
+    @responses.activate
+    def test_error_status_propagates_get_tags(self):
+        """
+        When we get a non 200 status from the server,
+        an error indicating that something happened along with the
+        status code is required.
+        """
+        responses.add(responses.GET,
+                      settings.WP_URL + 'wp-json/taxonomies/post_tag/terms',
+                      status=404,
+                      content_type='application/json')
+
+        posts = self.connector.get_tags()
+        self.assertTrue('server_error' in posts.keys())
+
+    @responses.activate
+    def test_connection_error_propagates_get_tags(self):
+        """
+        When we get a connection error from the server,
+        an error indicating that something happened along with the
+        status code is required.
+        """
+        posts = self.connector.get_tags()
+        self.assertTrue('server_error' in posts.keys())
+
+    @responses.activate
+    def test_error_status_propagates_get_categories(self):
+        """
+        When we get a non 200 status from the server,
+        an error indicating that something happened along with the
+        status code is required.
+        """
+        responses.add(responses.GET,
+                      settings.WP_URL + 'wp-json/taxonomies/category/terms',
+                      status=404,
+                      content_type='application/json')
+
+        posts = self.connector.get_categories()
+        self.assertTrue('server_error' in posts.keys())
+
+    @responses.activate
+    def test_connection_error_propagates_get_categories(self):
+        """
+        When we get a connection error from the server,
+        an error indicating that something happened along with the
+        status code is required.
+        """
+        posts = self.connector.get_categories()
         self.assertTrue('server_error' in posts.keys())
 
     @responses.activate
@@ -124,7 +184,7 @@ class TestUtils(TestCase):
 
 class TestViews(TestCase):
     """
-    Tests for 508.wp_api.views
+    Tests for wordpress_api.views
     """
 
     def setUp(self):
@@ -133,6 +193,7 @@ class TestViews(TestCase):
                 'excerpt': 'test blog',
                 'slug': 'test-blog',
                 'date': '2007-01-25T12:00:00Z',
+                'author': {'name': 'test', 'slug': 'test-slug'},
                 'terms': {
                     'post_tag': [{'slug': 'test-tag',
                                   'name': 'test tag'}],
@@ -166,7 +227,7 @@ class TestViews(TestCase):
         response = self.client.get(reverse('wordpress_api_blog_list'))
         self.assertEqual(response.status_code, 200)
 
-    @override_settings(WP_URL='http://this_is_some_unvalid_url/')
+    @responses.activate
     def test_blog_list_view_return_404_if_server_error(self):
         """
         If there is a problem with the wp server, it should
@@ -195,12 +256,33 @@ class TestViews(TestCase):
             reverse('wordpress_api_blog_detail', args=('test-blog',)))
         self.assertEqual(response.status_code, 200)
 
-    @override_settings(WP_URL='http://this_is_some_unvalid_url/')
+    @responses.activate
     def test_blog_view_return_404_if_server_error(self):
         """
         If there is a problem with the wp server, it should
         return 404
         """
+        response = self.client.get(
+            reverse('wordpress_api_blog_detail', args=('test-blog',)))
+        self.assertEqual(response.status_code, 404)
+
+    @responses.activate
+    def test_blog_view_return_404_if_no_blog(self):
+        """
+        If the wordpress server returns an empty array, it should
+        raise 404
+        """
+        data = {
+            'json': [],
+            'status': 200,
+            'content_type': 'application/json',
+            'adding_headers': {'X-WP-Total': '1', 'X-WP-TotalPages': '1'},
+        }
+        responses.add(responses.GET, settings.WP_URL + 'wp-json/posts',
+                      **data)
+        responses.add(responses.GET,
+                      settings.WP_URL + 'wp-json/taxonomies/post_tag/terms',
+                      **data)
         response = self.client.get(
             reverse('wordpress_api_blog_detail', args=('test-blog',)))
         self.assertEqual(response.status_code, 404)
@@ -226,7 +308,7 @@ class TestViews(TestCase):
                     args=('test-category',)))
         self.assertEqual(response.status_code, 200)
 
-    @override_settings(WP_URL='http://this_is_some_unvalid_url/')
+    @responses.activate
     def test_category_view_return_404_if_server_error(self):
         """
         If there is a problem with the wp server, it should
@@ -259,7 +341,7 @@ class TestViews(TestCase):
                     args=('test-tag',)))
         self.assertEqual(response.status_code, 200)
 
-    @override_settings(WP_URL='http://this_is_some_unvalid_url/')
+    @responses.activate
     def test_tag_view_return_404_if_server_error(self):
         """
         If there is a problem with the wp server, it should
@@ -268,4 +350,37 @@ class TestViews(TestCase):
         response = self.client.get(
             reverse('wordpress_api_blog_tag_list',
                     args=('test-tag',)))
+        self.assertEqual(response.status_code, 404)
+
+    # BlogByAuthorListView
+
+    @responses.activate
+    def test_author_view_return_200(self):
+        """
+        If the wp client gets information, it should return a 200
+        """
+        responses.add(responses.GET, settings.WP_URL + 'wp-json/posts',
+                      **self.default_response_kwargs)
+        responses.add(
+            responses.GET, settings.WP_URL +
+            'wp-json/taxonomies/post_tag/terms',
+            **self.default_response_kwargs)
+        responses.add(
+            responses.GET, settings.WP_URL +
+            'wp-json/taxonomies/category/terms',
+            **self.default_response_kwargs)
+        response = self.client.get(
+            reverse('wordpress_api_blog_by_author_list',
+                    args=('test-slug',)))
+        self.assertEqual(response.status_code, 200)
+
+    @responses.activate
+    def test_author_view_return_404_if_server_error(self):
+        """
+        If there is a problem with the wp server, it should
+        return 404
+        """
+        response = self.client.get(
+            reverse('wordpress_api_blog_by_author_list',
+                    args=('test-slug',)))
         self.assertEqual(response.status_code, 404)
