@@ -27,31 +27,34 @@ class WPApiConnector():
         """
         if not self.wp_url or not self.blog_per_page:
             return {'configuration_error': 'External url is not defined'}
+        params = {}
+        query = self.wp_url + 'wp-json/posts/'
         if orderby == 'title':
-            order = '&filter[order]=ASC'
+            params['filter[order]'] = 'ASC'
         else:
-            order = '&filter[order]=DESC'
+            params['filter[order]'] = 'DESC'
+
+        params['filter[orderby]'] = orderby
+
         if page_number is None:
-            query = self.wp_url + 'wp-json/posts?filter[orderby]=' + orderby +\
-                order + '&filter[posts_per_page]=-1'
+            params['filter[posts_per_page]'] = '-1'
         else:
-            query = self.wp_url + 'wp-json/posts?filter[posts_per_page]=' +\
-                str(settings.BLOG_POSTS_PER_PAGE) + '&page=' +\
-                str(page_number) + '&filter[orderby]=' + orderby +\
-                order
+
+            params['filter[posts_per_page]'] = str(
+                settings.BLOG_POSTS_PER_PAGE)
+            params['page'] = str(page_number)
         if custom_type is not None:
-            query += '&type=%s' % custom_type
+            params['type'] = custom_type
         if wp_filter is not None:
             for filter_type, filter_content in six.iteritems(wp_filter):
-                query += '&filter[' + filter_type + ']=' +\
-                    filter_content
-            query += '&filter[orderby]=' + orderby + order
+                key = 'filter[%s]' % filter_type
+                params[key] = filter_content
         if search is not None:
-            query += '&filter[s]=' + search
+            params['filter[s]'] = search
         if lang is not None:
-            query += '&lang=' + lang
+            params['lang'] = lang
         try:
-            response = requests.get(query, timeout=30)
+            response = requests.get(query, params=params, timeout=30)
         except (ConnectionError, Timeout):
             return {'server_error': 'The server is not reachable this moment\
                     please try again later'}
@@ -61,19 +64,19 @@ class WPApiConnector():
                 'server_error': 'Server returned status code %i' % response.
                 status_code}
         headers = response.headers or {}
-        headers.update({'request_url': query})
+        headers.update({'request_url': response.url})
         return {'body': response.json(), 'headers': headers, }
 
     def get_tags(self, lang=None):
         """
         Gets all the tags inside the wordpress application
         """
-
+        params = {}
         query = self.wp_url + "wp-json/taxonomies/post_tag/terms/"
         if lang is not None:
-            query = query + '?lang=' + lang
+            params['lang'] = lang
         try:
-            response = requests.get(query, timeout=30)
+            response = requests.get(query, params=params, timeout=30)
         except (ConnectionError, Timeout):
             return {'server_error': 'The server is not reachable this moment\
                     please try again later'}
@@ -89,11 +92,12 @@ class WPApiConnector():
         """
         Gets all the categories inside the wordpress application
         """
+        params = {}
         query = self.wp_url + "wp-json/taxonomies/category/terms/"
         if lang is not None:
-            query = query + '?lang=' + lang
+            params['lang'] = lang
         try:
-            response = requests.get(query, timeout=30)
+            response = requests.get(query, params=params, timeout=30)
         except (ConnectionError, Timeout):
             return {'server_error': 'The server is not reachable this moment\
                     please try again later'}
