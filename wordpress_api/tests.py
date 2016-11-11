@@ -56,7 +56,7 @@ class TestUtils(TestCase):
         an error indicating that something happened along with the
         status code is required.
         """
-        responses.add(responses.GET, settings.WP_URL + 'wp-json/posts',
+        responses.add(responses.GET, settings.WP_URL + 'wp-json/posts/',
                       status=404,
                       content_type='application/json')
 
@@ -130,14 +130,14 @@ class TestUtils(TestCase):
         It can be something else (like title) and the query should be changed
         accordingly.
         """
-        responses.add(responses.GET, settings.WP_URL + 'wp-json/posts',
+        responses.add(responses.GET, settings.WP_URL + 'wp-json/posts/',
                       **self.default_response_kwargs)
         posts = self.connector.get_posts()
         self.assertTrue(
-            'filter[orderby]=date' in posts['headers']['request_url'])
+            'filter%5Borderby%5D=date' in posts['headers']['request_url'])
         posts = self.connector.get_posts(orderby='title')
         self.assertTrue(
-            'filter[orderby]=title' in posts['headers']['request_url'])
+            'filter%5Borderby%5D=title' in posts['headers']['request_url'])
 
     @responses.activate
     def test_page_number_is_used(self):
@@ -145,14 +145,14 @@ class TestUtils(TestCase):
         Page number is 1 by default. If it is an int it gets used.
         If it is None it gets ignored.
         """
-        responses.add(responses.GET, settings.WP_URL + 'wp-json/posts',
+        responses.add(responses.GET, settings.WP_URL + 'wp-json/posts/',
                       **self.default_response_kwargs)
         posts = self.connector.get_posts()
-        self.assertTrue('&page=1' in posts['headers']['request_url'])
+        self.assertTrue('page=1' in posts['headers']['request_url'])
         posts = self.connector.get_posts(page_number=10)
-        self.assertTrue('&page=10' in posts['headers']['request_url'])
+        self.assertTrue('page=10' in posts['headers']['request_url'])
         posts = self.connector.get_posts(page_number=None)
-        self.assertTrue('&page=' not in posts['headers']['request_url'])
+        self.assertTrue('page=' not in posts['headers']['request_url'])
 
     @responses.activate
     def test_extra_filters(self):
@@ -161,12 +161,12 @@ class TestUtils(TestCase):
         they are taken in account for the query to the server.
         Otherwise ignored.
         """
-        responses.add(responses.GET, settings.WP_URL + 'wp-json/posts',
+        responses.add(responses.GET, settings.WP_URL + 'wp-json/posts/',
                       **self.default_response_kwargs)
         posts = self.connector.get_posts(
             wp_filter={'some_filter': 'some_content'})
         self.assertTrue(
-            '&filter[some_filter]=some_content' in posts[
+            'filter%5Bsome_filter%5D=some_content' in posts[
                 'headers']['request_url'])
 
     @responses.activate
@@ -174,12 +174,12 @@ class TestUtils(TestCase):
         """
         If custom type is defined, it should be used, otherwise ignored
         """
-        responses.add(responses.GET, settings.WP_URL + 'wp-json/posts',
+        responses.add(responses.GET, settings.WP_URL + 'wp-json/posts/',
                       **self.default_response_kwargs)
         posts = self.connector.get_posts()
-        self.assertTrue('&type=' not in posts['headers']['request_url'])
+        self.assertTrue('type=' not in posts['headers']['request_url'])
         posts = self.connector.get_posts(custom_type='glossary')
-        self.assertTrue('&type=glossary' in posts['headers']['request_url'])
+        self.assertTrue('type=glossary' in posts['headers']['request_url'])
 
 
 class TestViews(TestCase):
@@ -214,7 +214,7 @@ class TestViews(TestCase):
         """
         If the wp client gets information, it should return a 200
         """
-        responses.add(responses.GET, settings.WP_URL + 'wp-json/posts',
+        responses.add(responses.GET, settings.WP_URL + 'wp-json/posts/',
                       **self.default_response_kwargs)
         responses.add(
             responses.GET, settings.WP_URL +
@@ -242,7 +242,7 @@ class TestViews(TestCase):
         """
         If the wp client gets information, it should return a 200
         """
-        responses.add(responses.GET, settings.WP_URL + 'wp-json/posts',
+        responses.add(responses.GET, settings.WP_URL + 'wp-json/posts/',
                       **self.default_response_kwargs)
         responses.add(
             responses.GET, settings.WP_URL +
@@ -278,7 +278,7 @@ class TestViews(TestCase):
             'content_type': 'application/json',
             'adding_headers': {'X-WP-Total': '1', 'X-WP-TotalPages': '1'},
         }
-        responses.add(responses.GET, settings.WP_URL + 'wp-json/posts',
+        responses.add(responses.GET, settings.WP_URL + 'wp-json/posts/',
                       **data)
         responses.add(responses.GET,
                       settings.WP_URL + 'wp-json/taxonomies/post_tag/terms/',
@@ -293,7 +293,7 @@ class TestViews(TestCase):
         """
         If the wp client gets information, it should return a 200
         """
-        responses.add(responses.GET, settings.WP_URL + 'wp-json/posts',
+        responses.add(responses.GET, settings.WP_URL + 'wp-json/posts/',
                       **self.default_response_kwargs)
         responses.add(
             responses.GET, settings.WP_URL +
@@ -326,7 +326,7 @@ class TestViews(TestCase):
         """
         If the wp client gets information, it should return a 200
         """
-        responses.add(responses.GET, settings.WP_URL + 'wp-json/posts',
+        responses.add(responses.GET, settings.WP_URL + 'wp-json/posts/',
                       **self.default_response_kwargs)
         responses.add(
             responses.GET, settings.WP_URL +
@@ -359,7 +359,7 @@ class TestViews(TestCase):
         """
         If the wp client gets information, it should return a 200
         """
-        responses.add(responses.GET, settings.WP_URL + 'wp-json/posts',
+        responses.add(responses.GET, settings.WP_URL + 'wp-json/posts/',
                       **self.default_response_kwargs)
         responses.add(
             responses.GET, settings.WP_URL +
