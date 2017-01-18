@@ -39,3 +39,13 @@ At version 0.1.8 multilingual support was added. To use it, you need to install 
     WP_API_ALLOW_LANGUAGE = True
 
 Inside the views, the language is supported using ``django.utils.translation.get_language``. If you are not using django translation, you can use the WPApiConnector.get_posts method directly and pass the language as the lang parameter. You can check how this work at ``wordpress_api/utils.py``
+
+
+Page cache
+------------------------
+
+At version 0.1.18 cache support was added to all django wordpress api related pages. To activate it, just set the following setting.
+
+::
+
+    WP_API_BLOG_CACHE_TIMEOUT = 60 * 60 * 24

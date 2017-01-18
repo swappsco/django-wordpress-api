@@ -11,7 +11,7 @@ from .utils import WPApiConnector
 
 # Create your views here.
 try:
-    cache_time = settings.WP_API_BLOG_CACHE
+    cache_time = settings.WP_API_BLOG_CACHE_TIMEOUT
 except AttributeError:
     cache_time = 0
 
