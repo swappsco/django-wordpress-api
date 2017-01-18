@@ -16,7 +16,6 @@ except AttributeError:
     cache_time = 0
 
 
-@method_decorator(cache_page(cache_time), name='dispatch')
 class ParentBlogView(View):
     """
     Class that defines a method to calculate args for the wp_api
@@ -80,6 +79,10 @@ class ParentBlogView(View):
     def get(self, request, **kwargs):
         context = self.get_context_data(**kwargs)
         return render(request, self.template_name, context)
+
+    @method_decorator(cache_page(cache_time))
+    def dispatch(self, *args, **kwargs):
+        return super(ParentBlogView, self).dispatch(*args, **kwargs)
 
 
 class BlogListView(ParentBlogView):
