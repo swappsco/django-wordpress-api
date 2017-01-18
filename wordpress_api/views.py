@@ -1,4 +1,6 @@
 import iso8601
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from django.shortcuts import render
 from django.views.generic import View
 from django.contrib import messages
@@ -6,9 +8,15 @@ from django.http import Http404
 from django.utils.translation import get_language
 from django.conf import settings
 from .utils import WPApiConnector
+
 # Create your views here.
+try:
+    cache_time = settings.WP_API_BLOG_CACHE
+except AttributeError:
+    cache_time = 0
 
 
+@method_decorator(cache_page(cache_time), name='dispatch')
 class ParentBlogView(View):
     """
     Class that defines a method to calculate args for the wp_api
