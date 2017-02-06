@@ -96,6 +96,14 @@ class BlogListView(ParentBlogView):
             wp_api['search'] = search_term
         return wp_api
 
+    def get_context_data(self, **kwargs):
+        context = cache.get("blog_list_cache")
+        context = super(BlogListView, self).get_context_data(**kwargs) if\
+            context is None else context
+        cache.add("blog_list_cache",
+                  context, cache_time)
+        return context
+
 
 class BlogView(ParentBlogView):
     """
@@ -189,7 +197,11 @@ class CategoryBlogListView(ParentBlogView):
         return wp_api
 
     def get(self, request, **kwargs):
-        context = self.get_context_data(**kwargs)
+        context = cache.get("blog_category_context_" + kwargs.get('slug'))
+        context = self.get_context_data(**kwargs) if\
+            context is None else context
+        cache.add("blog_category_context_" + kwargs.get('slug'),
+                  context, cache_time)
         category_name = None
         if context['blogs']:
             for item in context['blogs'][0]['terms']['category']:
@@ -213,7 +225,11 @@ class TagBlogListView(ParentBlogView):
         return wp_api
 
     def get(self, request, **kwargs):
-        context = self.get_context_data(**kwargs)
+        context = cache.get("blog_tag_context_" + kwargs.get('slug'))
+        context = self.get_context_data(**kwargs) if\
+            context is None else context
+        cache.add("blog_tag_context_" + kwargs.get('slug'),
+                  context, cache_time)
         category_name = None
         if context['blogs']:
             for item in context['blogs'][0]['terms']['post_tag']:
@@ -237,7 +253,11 @@ class BlogByAuthorListView(ParentBlogView):
         return wp_api
 
     def get(self, request, **kwargs):
-        context = self.get_context_data(**kwargs)
+        context = cache.get("blog_author_context_" + kwargs.get('slug'))
+        context = self.get_context_data(**kwargs) if\
+            context is None else context
+        cache.add("blog_author_context_" + kwargs.get('slug'),
+                  context, cache_time)
         author_name = None
         if context['blogs']:
             if str(context[
