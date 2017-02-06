@@ -97,10 +97,10 @@ class BlogListView(ParentBlogView):
         return wp_api
 
     def get_context_data(self, **kwargs):
-        context = cache.get("blog_list_cache")
+        context = cache.get("blog_list_cache" + self.blog_language)
         context = super(BlogListView, self).get_context_data(**kwargs) if\
             context is None else context
-        cache.add("blog_list_cache",
+        cache.add("blog_list_cache" + self.blog_language,
                   context, cache_time)
         return context
 
@@ -117,10 +117,13 @@ class BlogView(ParentBlogView):
         return wp_api
 
     def get_context_data(self, **kwargs):
-        blog = cache.get("blog_cache_detail_" + kwargs.get('slug'))
-        tags = cache.get("blog_cache_detail_tags_" + kwargs.get('slug'))
+        blog = cache.get("blog_cache_detail_" + kwargs.get('slug') +
+                         self.blog_language)
+        tags = cache.get("blog_cache_detail_tags_" + kwargs.get('slug') +
+                         self.blog_language)
         categories = cache.get(
-            "blog_cache_detail_categories_" + kwargs.get('slug'))
+            "blog_cache_detail_categories_" + kwargs.get('slug') +
+            self.blog_language)
 
         api_kwargs = self.get_wp_api_kwargs(**kwargs)
         blog = WPApiConnector().get_posts(
@@ -131,11 +134,15 @@ class BlogView(ParentBlogView):
             lang=self.blog_language) if categories is None else categories
 
         cache.add(
-            "blog_cache_detail_" + kwargs.get('slug'), blog, cache_time)
+            "blog_cache_detail_" + kwargs.get('slug') + self.blog_language,
+            blog, cache_time)
         cache.add(
-            "blog_cache_detail_tags_" + kwargs.get('slug'), tags, cache_time)
+            "blog_cache_detail_tags_" + kwargs.get('slug') +
+            self.blog_language,
+            tags, cache_time)
         cache.add(
-            "blog_cache_detail_categories_" + kwargs.get('slug'),
+            "blog_cache_detail_categories_" + kwargs.get('slug') +
+            self.blog_language,
             categories, cache_time)
 
         if 'server_error' in blog or\
@@ -155,7 +162,8 @@ class BlogView(ParentBlogView):
                 blog_tags = blog_tags + tag['slug'] + ','
             if blog_tags:
                 related_blogs = cache.get(
-                    "blog_cache_detail_related" + kwargs.get('slug'))
+                    "blog_cache_detail_related" + kwargs.get('slug') +
+                    self.blog_language)
 
                 related_blogs = WPApiConnector().get_posts(
                     wp_filter={'tag': blog_tags},
@@ -163,7 +171,8 @@ class BlogView(ParentBlogView):
                     orderby='date')['body'] if related_blogs is None else\
                     related_blogs
                 cache.add(
-                    "blog_cache_detail_related" + kwargs.get('slug'),
+                    "blog_cache_detail_related" + kwargs.get('slug') +
+                    self.blog_language,
                     related_blogs, cache_time)
 
                 for related in related_blogs:
@@ -197,10 +206,12 @@ class CategoryBlogListView(ParentBlogView):
         return wp_api
 
     def get(self, request, **kwargs):
-        context = cache.get("blog_category_context_" + kwargs.get('slug'))
+        context = cache.get("blog_category_context_" + kwargs.get('slug') +
+                            self.blog_language)
         context = self.get_context_data(**kwargs) if\
             context is None else context
-        cache.add("blog_category_context_" + kwargs.get('slug'),
+        cache.add("blog_category_context_" + kwargs.get('slug') +
+                  self.blog_language,
                   context, cache_time)
         category_name = None
         if context['blogs']:
@@ -225,10 +236,12 @@ class TagBlogListView(ParentBlogView):
         return wp_api
 
     def get(self, request, **kwargs):
-        context = cache.get("blog_tag_context_" + kwargs.get('slug'))
+        context = cache.get("blog_tag_context_" + kwargs.get('slug') +
+                            self.blog_language)
         context = self.get_context_data(**kwargs) if\
             context is None else context
-        cache.add("blog_tag_context_" + kwargs.get('slug'),
+        cache.add("blog_tag_context_" + kwargs.get('slug') +
+                  self.blog_language,
                   context, cache_time)
         category_name = None
         if context['blogs']:
@@ -253,10 +266,12 @@ class BlogByAuthorListView(ParentBlogView):
         return wp_api
 
     def get(self, request, **kwargs):
-        context = cache.get("blog_author_context_" + kwargs.get('slug'))
+        context = cache.get("blog_author_context_" + kwargs.get('slug') +
+                            self.blog_language)
         context = self.get_context_data(**kwargs) if\
             context is None else context
-        cache.add("blog_author_context_" + kwargs.get('slug'),
+        cache.add("blog_author_context_" + kwargs.get('slug') +
+                  self.blog_language,
                   context, cache_time)
         author_name = None
         if context['blogs']:
