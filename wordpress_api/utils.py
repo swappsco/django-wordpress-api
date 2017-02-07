@@ -11,7 +11,8 @@ class WPApiConnector():
         self.blog_per_page = settings.BLOG_POSTS_PER_PAGE
 
     def get_posts(self, wp_filter=None, search=None, lang=None,
-                  page_number=1, orderby='date', custom_type=None):
+                  page_number=1, orderby='date', custom_type=None,
+                  auth=None):
         """
         get latests post from a wordpress blog.
         if number_of_posts is not defined or not an int,
@@ -54,7 +55,8 @@ class WPApiConnector():
         if lang is not None:
             params['lang'] = lang
         try:
-            response = requests.get(query, params=params, timeout=30)
+            response = requests.get(
+                query, params=params, timeout=30, auth=auth)
         except (ConnectionError, Timeout):
             return {'server_error': 'The server is not reachable this moment\
                     please try again later'}
@@ -67,7 +69,7 @@ class WPApiConnector():
         headers.update({'request_url': response.url})
         return {'body': response.json(), 'headers': headers, }
 
-    def get_tags(self, lang=None):
+    def get_tags(self, lang=None, auth=None):
         """
         Gets all the tags inside the wordpress application
         """
@@ -76,7 +78,8 @@ class WPApiConnector():
         if lang is not None:
             params['lang'] = lang
         try:
-            response = requests.get(query, params=params, timeout=30)
+            response = requests.get(
+                query, params=params, timeout=30, auth=auth)
         except (ConnectionError, Timeout):
             return {'server_error': 'The server is not reachable this moment\
                     please try again later'}
@@ -88,7 +91,7 @@ class WPApiConnector():
 
         return response.json()
 
-    def get_categories(self, lang=None):
+    def get_categories(self, lang=None, auth=None):
         """
         Gets all the categories inside the wordpress application
         """
@@ -97,7 +100,8 @@ class WPApiConnector():
         if lang is not None:
             params['lang'] = lang
         try:
-            response = requests.get(query, params=params, timeout=30)
+            response = requests.get(
+                query, params=params, timeout=30, auth=auth)
         except (ConnectionError, Timeout):
             return {'server_error': 'The server is not reachable this moment\
                     please try again later'}
