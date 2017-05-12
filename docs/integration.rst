@@ -49,3 +49,16 @@ At version 0.1.18 cache support was added to all django wordpress api related pa
 ::
 
     WP_API_BLOG_CACHE_TIMEOUT = 60 * 60 * 24
+
+
+RSS Feed
+------------------------
+
+At version 0.1.23 a RSS Feed was added. You may use it importing LatestEntriesFeed from wordpress_api.feed_views and adding it to your
+urls configuration.
+
+::
+
+        url(r'^feed/$', LatestEntriesFeed()),
+
+If you want to modify the title or the description, just create your own class and inherit LatestEntriesFeed.
