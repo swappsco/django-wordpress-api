@@ -32,8 +32,12 @@ class ParentBlogView(View):
             self.blog_language = 'en'
 
     def get_wp_api_kwargs(self, **kwargs):
+        try:
+            page = int(self.request.GET.get('page', 1))
+        except ValueError:
+            page = 1
         wp_api = {
-            'page_number': int(self.request.GET.get('page', 1)),
+            'page_number': page,
             'lang': self.blog_language}
         return wp_api
 
@@ -41,8 +45,6 @@ class ParentBlogView(View):
         api_kwargs = self.get_wp_api_kwargs(**kwargs)
         page = api_kwargs.get('page_number', 1)
         search = api_kwargs.get('search', '')
-        if not isinstance(page, int):
-            page = 1
         blogs = WPApiConnector().get_posts(**api_kwargs)
         tags = WPApiConnector().get_tags(lang=self.blog_language)
         categories = WPApiConnector().get_categories(lang=self.blog_language)
@@ -97,7 +99,8 @@ class BlogListView(ParentBlogView):
         return wp_api
 
     def get_context_data(self, **kwargs):
-        page = self.request.GET.get('page', 1)
+        api_kwargs = self.get_wp_api_kwargs(**kwargs)
+        page = api_kwargs.get('page_number', 1)
         context = cache.get(
             "blog_list_cache" + self.blog_language + "_page_" + str(page))
         context = super(BlogListView, self).get_context_data(**kwargs) if\
@@ -209,7 +212,8 @@ class CategoryBlogListView(ParentBlogView):
         return wp_api
 
     def get(self, request, **kwargs):
-        page = self.request.GET.get('page', 1)
+        api_kwargs = self.get_wp_api_kwargs(**kwargs)
+        page = api_kwargs.get('page_number', 1)
         context = cache.get(
             "blog_category_context_" +
             kwargs.get('slug') + self.blog_language + '_page_' + str(page))
@@ -242,7 +246,8 @@ class TagBlogListView(ParentBlogView):
         return wp_api
 
     def get(self, request, **kwargs):
-        page = self.request.GET.get('page', 1)
+        api_kwargs = self.get_wp_api_kwargs(**kwargs)
+        page = api_kwargs.get('page_number', 1)
         context = cache.get("blog_tag_context_" + kwargs.get('slug') +
                             self.blog_language + '_page_' + str(page))
         context = self.get_context_data(**kwargs) if\
@@ -273,7 +278,8 @@ class BlogByAuthorListView(ParentBlogView):
         return wp_api
 
     def get(self, request, **kwargs):
-        page = self.request.GET.get('page', 1)
+        api_kwargs = self.get_wp_api_kwargs(**kwargs)
+        page = api_kwargs.get('page_number', 1)
         context = cache.get("blog_author_context_" + kwargs.get('slug') +
                             self.blog_language + '_page_' + str(page))
         context = self.get_context_data(**kwargs) if\
