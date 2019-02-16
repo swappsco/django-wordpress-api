@@ -12,27 +12,23 @@
     <div class="col-md-6">
           <a href="{% url 'wordpress_api_blog_detail' blog.slug %}">
             {% if blog.featured_image %}
-                {% if blog.featured_image.errors.json_user_cannot_read %}
-                    <img src="" alt="default image if there is no blog image">
-                {% else %}
-                  {% if blog.featured_image.attachment_meta.sizes.medium.url %}
-                    <img src="{{ blog.featured_image.attachment_meta.sizes.medium.url }}" alt="blog image from wordpress post">
-                  {% elif blog.featured_image.source %}
-                    <img src="{{ blog.featured_image.source }}" alt="blog image from wordpress post">
-                  {% else %}
-                    <img src="{{ blog.featured_image.attachment_meta.sizes.thumbnail.url }}" alt="blog image from wordpress post">
-                  {% endif %}
-                {% endif %}
+              {% if blog.featured_image.media_details.sizes.medium.source_url %}
+                <img src="{{ blog.featured_image.media_details.sizes.medium.source_url }}" alt="blog image from wordpress post">
+              {% elif blog.featured_image.media_details.sizes.thumbnail.source_url %}
+                <img src="{{ blog.featured_image.media_details.sizes.thumbnail.source_url }}" alt="blog image from wordpress post">
+              {% else %}
+                <img src="{{ blog.featured_image.source_url }}" alt="blog image from wordpress post">
+              {% endif %}
             {% else %}
                 <img src="" alt="default image if there is no blog image">
             {% endif %}
           </a>
 
-          <a href="{% url 'wordpress_api_blog_detail' blog.slug %}"><h3>{{ blog.title | striptags | safe }}</h3></a>
+          <a href="{% url 'wordpress_api_blog_detail' blog.slug %}"><h3>{{ blog.title.rendered | striptags | safe }}</h3></a>
           <small>
               <small style="font-size:12px">{{ blog.author.name }}</small>&nbsp;&nbsp;&nbsp;<small style="font-size:12px">{{ blog.bdate }}</small>
           </small>
-          <p>{{ blog.excerpt | striptags | safe }}<a href="{% url 'wordpress_api_blog_detail' blog.slug %}">Continue reading</a></p>
+          <p>{{ blog.excerpt.rendered | striptags | safe }}<a href="{% url 'wordpress_api_blog_detail' blog.slug %}">Continue reading</a></p>
     </div>
     {% empty %}
     <p>

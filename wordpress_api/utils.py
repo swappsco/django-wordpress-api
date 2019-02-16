@@ -28,7 +28,7 @@ class WPApiConnector():
         """
         if not self.wp_url or not self.blog_per_page:
             return {'configuration_error': 'External url is not defined'}
-        params = {}
+        params = {'_embed': 'true'}
         query = self.wp_url + 'wp-json/wp/v2/posts/'
         if orderby == 'title':
             params['order'] = 'asc'
@@ -38,8 +38,7 @@ class WPApiConnector():
         params['orderby'] = orderby
 
         if page_number is not None:
-            params['posts_per_page'] = str(
-                settings.BLOG_POSTS_PER_PAGE)
+            params['per_page'] = str(self.blog_per_page)
             params['page'] = str(page_number)
         if custom_type is not None:
             params['type'] = custom_type
