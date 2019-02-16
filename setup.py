@@ -46,6 +46,7 @@ setup(
         'requests==2.11.1',
         'iso8601==0.1.11',
         'six==1.10.0',
+        'django>=1.11.20',
     ],
     license="MIT",
     zip_safe=False,
@@ -53,8 +54,8 @@ setup(
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Framework :: Django',
-        'Framework :: Django :: 1.8',
-        'Framework :: Django :: 1.9',
+        'Framework :: Django :: 1.11.20',
+        'Framework :: Django :: 2.1.7',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Natural Language :: English',

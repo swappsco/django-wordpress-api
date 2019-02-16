@@ -3,7 +3,7 @@ from django.contrib.syndication.views import Feed
 from django.conf import settings
 from django.utils.translation import get_language
 from django.http import Http404
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from .utils import WPApiConnector
 
 
