@@ -1,7 +1,7 @@
 # !/usr/bin/env python
 #  -*- coding: utf-8 -*-
 from django.test import TestCase, override_settings, Client
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 import responses
 from wordpress_api.utils import WPApiConnector
 from django.conf import settings
@@ -56,7 +56,7 @@ class TestUtils(TestCase):
         an error indicating that something happened along with the
         status code is required.
         """
-        responses.add(responses.GET, settings.WP_URL + 'wp-json/posts/',
+        responses.add(responses.GET, settings.WP_URL + 'wp-json/wp/v2/posts/',
                       status=404,
                       content_type='application/json')
 
@@ -81,7 +81,7 @@ class TestUtils(TestCase):
         status code is required.
         """
         responses.add(responses.GET,
-                      settings.WP_URL + 'wp-json/taxonomies/post_tag/terms/',
+                      settings.WP_URL + 'wp-json/wp/v2/tags/',
                       status=404,
                       content_type='application/json')
 
@@ -106,7 +106,7 @@ class TestUtils(TestCase):
         status code is required.
         """
         responses.add(responses.GET,
-                      settings.WP_URL + 'wp-json/taxonomies/category/terms/',
+                      settings.WP_URL + 'wp-json/wp/v2/categories/',
                       status=404,
                       content_type='application/json')
 
@@ -130,14 +130,14 @@ class TestUtils(TestCase):
         It can be something else (like title) and the query should be changed
         accordingly.
         """
-        responses.add(responses.GET, settings.WP_URL + 'wp-json/posts/',
+        responses.add(responses.GET, settings.WP_URL + 'wp-json/wp/v2/posts/',
                       **self.default_response_kwargs)
         posts = self.connector.get_posts()
         self.assertTrue(
-            'filter%5Borderby%5D=date' in posts['headers']['request_url'])
+            'orderby=date' in posts['headers']['request_url'])
         posts = self.connector.get_posts(orderby='title')
         self.assertTrue(
-            'filter%5Borderby%5D=title' in posts['headers']['request_url'])
+            'orderby=title' in posts['headers']['request_url'])
 
     @responses.activate
     def test_page_number_is_used(self):
@@ -145,7 +145,7 @@ class TestUtils(TestCase):
         Page number is 1 by default. If it is an int it gets used.
         If it is None it gets ignored.
         """
-        responses.add(responses.GET, settings.WP_URL + 'wp-json/posts/',
+        responses.add(responses.GET, settings.WP_URL + 'wp-json/wp/v2/posts/',
                       **self.default_response_kwargs)
         posts = self.connector.get_posts()
         self.assertTrue('page=1' in posts['headers']['request_url'])
@@ -161,12 +161,12 @@ class TestUtils(TestCase):
         they are taken in account for the query to the server.
         Otherwise ignored.
         """
-        responses.add(responses.GET, settings.WP_URL + 'wp-json/posts/',
+        responses.add(responses.GET, settings.WP_URL + 'wp-json/wp/v2/posts/',
                       **self.default_response_kwargs)
         posts = self.connector.get_posts(
             wp_filter={'some_filter': 'some_content'})
         self.assertTrue(
-            'filter%5Bsome_filter%5D=some_content' in posts[
+            'some_filter=some_content' in posts[
                 'headers']['request_url'])
 
     @responses.activate
@@ -174,7 +174,7 @@ class TestUtils(TestCase):
         """
         If custom type is defined, it should be used, otherwise ignored
         """
-        responses.add(responses.GET, settings.WP_URL + 'wp-json/posts/',
+        responses.add(responses.GET, settings.WP_URL + 'wp-json/wp/v2/posts/',
                       **self.default_response_kwargs)
         posts = self.connector.get_posts()
         self.assertTrue('type=' not in posts['headers']['request_url'])
@@ -214,15 +214,15 @@ class TestViews(TestCase):
         """
         If the wp client gets information, it should return a 200
         """
-        responses.add(responses.GET, settings.WP_URL + 'wp-json/posts/',
+        responses.add(responses.GET, settings.WP_URL + 'wp-json/wp/v2/posts/',
                       **self.default_response_kwargs)
         responses.add(
             responses.GET, settings.WP_URL +
-            'wp-json/taxonomies/post_tag/terms/',
+            'wp-json/wp/v2/tags/',
             **self.default_response_kwargs)
         responses.add(
             responses.GET, settings.WP_URL +
-            'wp-json/taxonomies/category/terms/',
+            'wp-json/wp/v2/categories/',
             **self.default_response_kwargs)
         response = self.client.get(reverse('wordpress_api_blog_list'))
         self.assertEqual(response.status_code, 200)
@@ -242,15 +242,15 @@ class TestViews(TestCase):
         """
         If the wp client gets information, it should return a 200
         """
-        responses.add(responses.GET, settings.WP_URL + 'wp-json/posts/',
+        responses.add(responses.GET, settings.WP_URL + 'wp-json/wp/v2/posts/',
                       **self.default_response_kwargs)
         responses.add(
             responses.GET, settings.WP_URL +
-            'wp-json/taxonomies/post_tag/terms/',
+            'wp-json/wp/v2/tags/',
             **self.default_response_kwargs)
         responses.add(
             responses.GET, settings.WP_URL +
-            'wp-json/taxonomies/category/terms/',
+            'wp-json/wp/v2/categories/',
             **self.default_response_kwargs)
         response = self.client.get(
             reverse('wordpress_api_blog_detail', args=('test-blog',)))
@@ -278,10 +278,10 @@ class TestViews(TestCase):
             'content_type': 'application/json',
             'adding_headers': {'X-WP-Total': '1', 'X-WP-TotalPages': '1'},
         }
-        responses.add(responses.GET, settings.WP_URL + 'wp-json/posts/',
+        responses.add(responses.GET, settings.WP_URL + 'wp-json/wp/v2/posts/',
                       **data)
         responses.add(responses.GET,
-                      settings.WP_URL + 'wp-json/taxonomies/post_tag/terms/',
+                      settings.WP_URL + 'wp-json/wp/v2/tags/',
                       **data)
         response = self.client.get(
             reverse('wordpress_api_blog_detail', args=('test-blog',)))
@@ -293,15 +293,15 @@ class TestViews(TestCase):
         """
         If the wp client gets information, it should return a 200
         """
-        responses.add(responses.GET, settings.WP_URL + 'wp-json/posts/',
+        responses.add(responses.GET, settings.WP_URL + 'wp-json/wp/v2/posts/',
                       **self.default_response_kwargs)
         responses.add(
             responses.GET, settings.WP_URL +
-            'wp-json/taxonomies/post_tag/terms/',
+            'wp-json/wp/v2/tags/',
             **self.default_response_kwargs)
         responses.add(
             responses.GET, settings.WP_URL +
-            'wp-json/taxonomies/category/terms/',
+            'wp-json/wp/v2/categories/',
             **self.default_response_kwargs)
         response = self.client.get(
             reverse('wordpress_api_blog_category_list',
@@ -326,15 +326,15 @@ class TestViews(TestCase):
         """
         If the wp client gets information, it should return a 200
         """
-        responses.add(responses.GET, settings.WP_URL + 'wp-json/posts/',
+        responses.add(responses.GET, settings.WP_URL + 'wp-json/wp/v2/posts/',
                       **self.default_response_kwargs)
         responses.add(
             responses.GET, settings.WP_URL +
-            'wp-json/taxonomies/post_tag/terms/',
+            'wp-json/wp/v2/tags/',
             **self.default_response_kwargs)
         responses.add(
             responses.GET, settings.WP_URL +
-            'wp-json/taxonomies/category/terms/',
+            'wp-json/wp/v2/categories/',
             **self.default_response_kwargs)
         response = self.client.get(
             reverse('wordpress_api_blog_tag_list',
@@ -359,15 +359,15 @@ class TestViews(TestCase):
         """
         If the wp client gets information, it should return a 200
         """
-        responses.add(responses.GET, settings.WP_URL + 'wp-json/posts/',
+        responses.add(responses.GET, settings.WP_URL + 'wp-json/wp/v2/posts/',
                       **self.default_response_kwargs)
         responses.add(
             responses.GET, settings.WP_URL +
-            'wp-json/taxonomies/post_tag/terms/',
+            'wp-json/wp/v2/tags/',
             **self.default_response_kwargs)
         responses.add(
             responses.GET, settings.WP_URL +
-            'wp-json/taxonomies/category/terms/',
+            'wp-json/wp/v2/categories/',
             **self.default_response_kwargs)
         response = self.client.get(
             reverse('wordpress_api_blog_by_author_list',

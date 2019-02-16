@@ -29,29 +29,26 @@ class WPApiConnector():
         if not self.wp_url or not self.blog_per_page:
             return {'configuration_error': 'External url is not defined'}
         params = {}
-        query = self.wp_url + 'wp-json/posts/'
+        query = self.wp_url + 'wp-json/wp/v2/posts/'
         if orderby == 'title':
-            params['filter[order]'] = 'ASC'
+            params['order'] = 'asc'
         else:
-            params['filter[order]'] = 'DESC'
+            params['order'] = 'desc'
 
-        params['filter[orderby]'] = orderby
+        params['orderby'] = orderby
 
-        if page_number is None:
-            params['filter[posts_per_page]'] = '-1'
-        else:
-
-            params['filter[posts_per_page]'] = str(
+        if page_number is not None:
+            params['posts_per_page'] = str(
                 settings.BLOG_POSTS_PER_PAGE)
             params['page'] = str(page_number)
         if custom_type is not None:
             params['type'] = custom_type
         if wp_filter is not None:
             for filter_type, filter_content in six.iteritems(wp_filter):
-                key = 'filter[%s]' % filter_type
+                key = filter_type
                 params[key] = filter_content
         if search is not None:
-            params['filter[s]'] = search
+            params['search'] = search
         if lang is not None:
             params['lang'] = lang
         try:
@@ -74,7 +71,7 @@ class WPApiConnector():
         Gets all the tags inside the wordpress application
         """
         params = {}
-        query = self.wp_url + "wp-json/taxonomies/post_tag/terms/"
+        query = self.wp_url + "wp-json/wp/v2/tags/"
         if lang is not None:
             params['lang'] = lang
         try:
@@ -96,7 +93,7 @@ class WPApiConnector():
         Gets all the categories inside the wordpress application
         """
         params = {}
-        query = self.wp_url + "wp-json/taxonomies/category/terms/"
+        query = self.wp_url + "wp-json/wp/v2/categories/"
         if lang is not None:
             params['lang'] = lang
         try:

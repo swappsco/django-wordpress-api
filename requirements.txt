@@ -1,4 +1,4 @@
-django>=1.9.6
+django>=1.11.20
 
 # Additional requirements go here
 requests==2.11.1
