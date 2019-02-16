@@ -20,6 +20,7 @@ class ParentBlogView(View):
     Class that defines a method to calculate args for the wp_api
     on the fly. Most of the code of the other views is the same.
     """
+
     def __init__(self, *args, **kwargs):
         super(ParentBlogView, self).__init__(*args, **kwargs)
         try:
@@ -57,13 +58,16 @@ class ParentBlogView(View):
         if not blogs['body']:
             raise Http404
         for blog in blogs['body']:
-            if blog['excerpt'] is not None:
-                position = blog['excerpt'].find(
-                    'Continue reading')
-                if position != -1:
-                    blog['excerpt'] = blog['excerpt'][:position]
             blog['slug'] = str(blog['slug'])
             blog['bdate'] = iso8601.parse_date(blog['date']).date()
+            featured_media = blog.get(
+                '_embedded', {}).get('wp:featuredmedia', [])
+            author = blog.get(
+                '_embedded', {}).get('author', [])
+            if featured_media:
+                blog['featured_image'] = featured_media[0]
+            if author:
+                blog['author'] = author[0]
         context = {
             'blogs': blogs['body'],
             'tags': tags,
