@@ -2,17 +2,70 @@ import requests
 import six
 from django.conf import settings
 from requests.exceptions import ConnectionError, Timeout
+from django.core.cache import cache
+
+try:
+    cache_time = settings.WP_API_BLOG_CACHE_TIMEOUT
+except AttributeError:
+    cache_time = 0
 
 
-class WPApiConnector():
+class WPApiConnector(object):
 
-    def __init__(self):
+    def __init__(self, auth=None):
         self.wp_url = settings.WP_URL
         self.blog_per_page = settings.BLOG_POSTS_PER_PAGE
+        self.auth = None
+        authors = cache.get("blog_cache_authors_detail")
+        self.authors = self.get_authors() if authors is None else authors
+
+    def get_authors(self):
+        """
+        In order to be able to search by authors, we need
+        the authors id. This method returns a dict with authors
+        slug: author_data as key, value.
+        """
+        if not self.wp_url or not self.blog_per_page:
+            return {'configuration_error': 'External url is not defined'}
+        query = self.wp_url + 'wp-json/wp/v2/users/'
+        params = {'per_page': '100'}
+        page = 1
+        try:
+            response = requests.get(
+                query, params=params, timeout=30, auth=self.auth)
+        except (ConnectionError, Timeout):
+            return {'server_error': 'The server is not reachable this moment\
+                    please try again later'}
+
+        if response.status_code != 200:
+            return {
+                'server_error': 'Server returned status code %i' % response.
+                status_code}
+        authors = {}
+        data = response.json()
+        for author in data:
+            authors[author['slug']] = author
+        total_pages = response.headers.get('X-WP-TotalPages', 1)
+        try:
+            total_pages = int(total_pages)
+        except ValueError:
+            total_pages = 1
+        for i in range(0, total_pages - 1):
+            page += 1
+            params['page'] = page
+            response = requests.get(
+                query, params=params, timeout=30, auth=self.auth)
+            data = response.json()
+            for author in data:
+                authors[author['slug']] = author
+
+        cache.add(
+            "blog_cache_authors_detail",
+            authors, cache_time)
+        return authors
 
     def get_posts(self, wp_filter=None, search=None, lang=None,
-                  page_number=1, orderby='date', custom_type=None,
-                  auth=None):
+                  page_number=1, orderby='date', custom_type=None):
         """
         get latests post from a wordpress blog.
         if number_of_posts is not defined or not an int,
@@ -26,6 +79,7 @@ class WPApiConnector():
 
         http://wp-api.org/index-deprecated.html#posts_retrieve-posts
         """
+        auth = self.auth
         if not self.wp_url or not self.blog_per_page:
             return {'configuration_error': 'External url is not defined'}
         params = {'_embed': 'true'}

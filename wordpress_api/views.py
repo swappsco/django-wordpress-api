@@ -31,6 +31,7 @@ class ParentBlogView(View):
                 self.blog_language = 'en'
         except AttributeError:
             self.blog_language = 'en'
+        self.connector = WPApiConnector()
 
     def get_wp_api_kwargs(self, **kwargs):
         try:
@@ -46,9 +47,9 @@ class ParentBlogView(View):
         api_kwargs = self.get_wp_api_kwargs(**kwargs)
         page = api_kwargs.get('page_number', 1)
         search = api_kwargs.get('search', '')
-        blogs = WPApiConnector().get_posts(**api_kwargs)
-        tags = WPApiConnector().get_tags(lang=self.blog_language)
-        categories = WPApiConnector().get_categories(lang=self.blog_language)
+        blogs = self.connector.get_posts(**api_kwargs)
+        tags = self.connector.get_tags(lang=self.blog_language)
+        categories = self.connector.get_categories(lang=self.blog_language)
 
         if 'server_error' in blogs or\
            'server_error' in tags:
@@ -62,12 +63,12 @@ class ParentBlogView(View):
             blog['bdate'] = iso8601.parse_date(blog['date']).date()
             featured_media = blog.get(
                 '_embedded', {}).get('wp:featuredmedia', [])
-            author = blog.get(
+            authors = blog.get(
                 '_embedded', {}).get('author', [])
             if featured_media:
                 blog['featured_image'] = featured_media[0]
-            if author:
-                blog['author'] = author[0]
+            if authors:
+                blog['authors'] = authors
         context = {
             'blogs': blogs['body'],
             'tags': tags,
@@ -136,11 +137,11 @@ class BlogView(ParentBlogView):
             self.blog_language)
 
         api_kwargs = self.get_wp_api_kwargs(**kwargs)
-        blog = WPApiConnector().get_posts(
+        blog = self.connector.get_posts(
             **api_kwargs) if blog is None else blog
-        tags = WPApiConnector().get_tags(
+        tags = self.connector.get_tags(
             lang=self.blog_language) if tags is None else tags
-        categories = WPApiConnector().get_categories(
+        categories = self.connector.get_categories(
             lang=self.blog_language) if categories is None else categories
 
         cache.add(
@@ -175,7 +176,7 @@ class BlogView(ParentBlogView):
                     "blog_cache_detail_related" + kwargs.get('slug') +
                     self.blog_language)
 
-                related_blogs = WPApiConnector().get_posts(
+                related_blogs = self.connector.get_posts(
                     wp_filter={'tag': blog_tags},
                     page_number=1,
                     orderby='date')['body'] if related_blogs is None else\
@@ -278,7 +279,10 @@ class BlogByAuthorListView(ParentBlogView):
 
     def get_wp_api_kwargs(self, **kwargs):
         wp_api = super(BlogByAuthorListView, self).get_wp_api_kwargs(**kwargs)
-        wp_api['wp_filter'] = {'author_name': kwargs.get('slug')}
+        slug = kwargs.get('slug')
+        authors = self.connector.authors
+        if slug in authors:
+            wp_api['wp_filter'] = {'author': authors[slug]['id']}
         return wp_api
 
     def get(self, request, **kwargs):
@@ -293,9 +297,15 @@ class BlogByAuthorListView(ParentBlogView):
                   context, cache_time)
         author_name = None
         if context['blogs']:
-            if str(context[
-                    'blogs'][0]['author']['slug']) == kwargs.get('slug'):
-                author_name = kwargs.get('slug')
+            for blog in context['blogs']:
+                authors = blog.get(
+                    '_embedded', {}).get('author', [])
+                for author in authors:
+                    if str(author['slug']) == kwargs.get('slug'):
+                        author_name = kwargs.get('slug')
+                        context['author_name'] = author_name
+                        return render(
+                            request, self.template_name, context)
 
         context['author_name'] = author_name
         return render(request, self.template_name, context)
