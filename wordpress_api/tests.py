@@ -19,14 +19,51 @@ class TestUtils(TestCase):
     """
     Tests for wordpress_api.utils
     """
-
+    @responses.activate
     def setUp(self):
+        responses.add(
+            responses.GET, settings.WP_URL + 'wp-json/wp/v2/users/',
+            status=200,
+            json=[{
+                "id": 2,
+                "name": "test-slug",
+                "url": "",
+                "description": "",
+                "link": "https://example.com/blog/author/test-slug/",
+                "slug": "test-slug",
+                "avatar_urls": {
+                    "24": "https://example.com/test-avatar",
+                },
+                "meta": [],
+                "_links": {
+                    "self": [
+                        {
+                            "href": "https://example.com/wp-json/wp/v2/users/2"
+                        }
+                    ],
+                    "collection": [
+                        {
+                            "href": "https://example.com/wp-json/wp/v2/users"
+                        }
+                    ]
+                }
+            }],
+            content_type='application/json')
         self.connector = WPApiConnector()
         self.default_response_kwargs = {
             'json': {'success': 'something found'},
             'status': 200,
             'content_type': 'application/json',
         }
+
+    def test_connector_gets_all_authors(self):
+        """
+        connector object should have the authors as one
+        of its properties
+        """
+        self.assertTrue(self.connector.authors is not None)
+        self.assertTrue('test-slug' in self.connector.authors)
+        self.assertEqual(self.connector.authors['test-slug']['id'], 2)
 
     @override_settings(WP_URL='')
     def test_raises_error_if_no_api_url(self):
