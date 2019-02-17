@@ -26,7 +26,7 @@
 
           <a href="{% url 'wordpress_api_blog_detail' blog.slug %}"><h3>{{ blog.title.rendered | striptags | safe }}</h3></a>
           <small>
-              <small style="font-size:12px">{{ blog.author.name }}</small>&nbsp;&nbsp;&nbsp;<small style="font-size:12px">{{ blog.bdate }}</small>
+              <small style="font-size:12px">{% for author in blog.authors %}{{ author.name }}&nbsp;{% endfor %}</small>&nbsp;&nbsp;<small style="font-size:12px">{{ blog.bdate }}</small>
           </small>
           <p>{{ blog.excerpt.rendered | striptags | safe }}<a href="{% url 'wordpress_api_blog_detail' blog.slug %}">Continue reading</a></p>
     </div>
