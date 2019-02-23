@@ -31,7 +31,7 @@ class ParentBlogView(View):
                 self.blog_language = 'en'
         except AttributeError:
             self.blog_language = 'en'
-        self.connector = WPApiConnector()
+        self.connector = WPApiConnector(lang=self.blog_language)
 
     def get_wp_api_kwargs(self, **kwargs):
         try:
@@ -39,8 +39,8 @@ class ParentBlogView(View):
         except ValueError:
             page = 1
         wp_api = {
-            'page_number': page,
-            'lang': self.blog_language}
+            'page_number': page
+        }
         return wp_api
 
     def get_context_data(self, **kwargs):
@@ -48,8 +48,8 @@ class ParentBlogView(View):
         page = api_kwargs.get('page_number', 1)
         search = api_kwargs.get('search', '')
         blogs = self.connector.get_posts(**api_kwargs)
-        tags = self.connector.get_tags(lang=self.blog_language)
-        categories = self.connector.get_categories(lang=self.blog_language)
+        tags = self.connector.tags
+        categories = self.connector.categories
 
         if 'server_error' in blogs or\
            'server_error' in tags:
@@ -130,31 +130,16 @@ class BlogView(ParentBlogView):
     def get_context_data(self, **kwargs):
         blog = cache.get("blog_cache_detail_" + kwargs.get('slug') +
                          self.blog_language)
-        tags = cache.get("blog_cache_detail_tags_" + kwargs.get('slug') +
-                         self.blog_language)
-        categories = cache.get(
-            "blog_cache_detail_categories_" + kwargs.get('slug') +
-            self.blog_language)
 
         api_kwargs = self.get_wp_api_kwargs(**kwargs)
         blog = self.connector.get_posts(
             **api_kwargs) if blog is None else blog
-        tags = self.connector.get_tags(
-            lang=self.blog_language) if tags is None else tags
-        categories = self.connector.get_categories(
-            lang=self.blog_language) if categories is None else categories
+        tags = self.connector.tags
+        categories = self.connector.categories
 
         cache.add(
             "blog_cache_detail_" + kwargs.get('slug') + self.blog_language,
             blog, cache_time)
-        cache.add(
-            "blog_cache_detail_tags_" + kwargs.get('slug') +
-            self.blog_language,
-            tags, cache_time)
-        cache.add(
-            "blog_cache_detail_categories_" + kwargs.get('slug') +
-            self.blog_language,
-            categories, cache_time)
 
         if 'server_error' in blog or\
            'server_error' in tags:

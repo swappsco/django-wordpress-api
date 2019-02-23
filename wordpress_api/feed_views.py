@@ -15,19 +15,20 @@ class LatestEntriesFeed(Feed):
 
     def get_wp_api_kwargs(self, **kwargs):
         wp_api = {
-            'page_number': 1,
-            'lang': self.blog_language}
+            'page_number': 1
+        }
         return wp_api
 
     def get_context_data(self, **kwargs):
+        connector = WPApiConnector(lang=self.blog_language)
         api_kwargs = self.get_wp_api_kwargs(**kwargs)
         page = api_kwargs.get('page_number', 1)
         search = api_kwargs.get('search', '')
         if not isinstance(page, int):
             page = 1
-        blogs = WPApiConnector().get_posts(**api_kwargs)
-        tags = WPApiConnector().get_tags(lang=self.blog_language)
-        categories = WPApiConnector().get_categories(lang=self.blog_language)
+        blogs = connector.get_posts(**api_kwargs)
+        tags = connector.tags
+        categories = connector.categories
 
         if 'server_error' in blogs or\
            'server_error' in tags:
