@@ -33,6 +33,20 @@ class ParentBlogView(View):
             self.blog_language = 'en'
         self.connector = WPApiConnector(lang=self.blog_language)
 
+    def dispatch(self, *args, **kwargs):
+        authors = self.connector.authors
+        tags = self.connector.tags
+        categories = self.connector.categories
+        if 'server_error' in tags or\
+           'server_error' in categories or\
+           'server_error' in authors:
+            messages.add_message(
+                self.request, messages.ERROR,
+                'The server is not reachable this moment. \
+                Please try again later')
+            raise Http404
+        return super(ParentBlogView, self).dispatch(*args, **kwargs)
+
     def get_wp_api_kwargs(self, **kwargs):
         try:
             page = int(self.request.GET.get('page', 1))
@@ -51,8 +65,7 @@ class ParentBlogView(View):
         tags = self.connector.tags
         categories = self.connector.categories
 
-        if 'server_error' in blogs or\
-           'server_error' in tags:
+        if 'server_error' in blogs:
             messages.add_message(self.request, messages.ERROR,
                                  blogs['server_error'])
             raise Http404
@@ -86,8 +99,6 @@ class ParentBlogView(View):
         context = self.get_context_data(**kwargs)
         return render(request, self.template_name, context)
 
-    def dispatch(self, *args, **kwargs):
-        return super(ParentBlogView, self).dispatch(*args, **kwargs)
 
 
 class BlogListView(ParentBlogView):
