@@ -3,11 +3,16 @@ import six
 from django.conf import settings
 from requests.exceptions import ConnectionError, Timeout
 from django.core.cache import cache
-
+from django.core.exceptions import ImproperlyConfigured
 try:
     cache_time = settings.WP_API_BLOG_CACHE_TIMEOUT
 except AttributeError:
     cache_time = 0
+
+try:
+    cache_time = settings.BLOG_POSTS_PER_PAGE
+except AttributeError:
+    blog_per_page = 10
 
 
 class WPApiConnector(object):
@@ -15,7 +20,9 @@ class WPApiConnector(object):
     def __init__(self, lang='en', auth=None, load_meta_data=True):
         self.lang = lang
         self.wp_url = settings.WP_URL
-        self.blog_per_page = settings.BLOG_POSTS_PER_PAGE
+        self.blog_per_page = blog_per_page
+        if not self.wp_url:
+            raise ImproperlyConfigured("Missing wordpress url")
         self.auth = None
         if load_meta_data:
             authors = cache.get("blog_cache_authors_detail_{}".format(
@@ -38,8 +45,6 @@ class WPApiConnector(object):
         the authors id. This method returns a dict with authors
         slug: author_data as key, value.
         """
-        if not self.wp_url or not self.blog_per_page:
-            return {'configuration_error': 'External url is not defined'}
         query = self.wp_url + 'wp-json/wp/v2/users/'
         params = {'per_page': '100'}
         page = 1
@@ -95,8 +100,6 @@ class WPApiConnector(object):
         http://wp-api.org/index-deprecated.html#posts_retrieve-posts
         """
         auth = self.auth
-        if not self.wp_url or not self.blog_per_page:
-            return {'configuration_error': 'External url is not defined'}
         params = {'_embed': 'true'}
         query = self.wp_url + 'wp-json/wp/v2/posts/'
         if orderby == 'title':
