@@ -1,10 +1,11 @@
 # !/usr/bin/env python
 #  -*- coding: utf-8 -*-
-from django.test import TestCase, override_settings, Client
-from django.urls import reverse
 import responses
-from wordpress_api.utils import WPApiConnector
+from django.urls import reverse
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
+from django.test import TestCase, override_settings, Client
+from wordpress_api.utils import WPApiConnector
 
 
 """
@@ -49,6 +50,88 @@ class TestUtils(TestCase):
                 }
             }],
             content_type='application/json')
+        responses.add(
+            responses.GET, settings.WP_URL + 'wp-json/wp/v2/tags/',
+            status=200,
+            json=[{
+                'count': 1,
+                'description': '',
+                'id': 1,
+                'link': 'https://example.com/blog/tag/test/',
+                'meta': [],
+                'name': 'test',
+                'slug': 'test',
+                '_links': {
+                    'about': [
+                        {
+                            'href': 'https://example.com/wp-json/wp/v2/taxonomies/post_tag'
+                        }
+                    ],
+                    'collection': [
+                        {
+                            'href': 'https://example.com/wp-json/wp/v2/tags'
+                        }
+                    ],
+                    'curies': [
+                        {
+                            'href': 'https://api.w.org/{rel}',
+                            'name': 'wp',
+                            'templated': True
+                        }
+                    ],
+                    'self': [{
+                        'href': 'https://example.com/wp-json/wp/v2/tags/1'
+                    }],
+                    'wp:post_type': [
+                        {
+                            'href': 'https://example.com/wp-json/wp/v2/posts?tags=1'
+                        }
+                    ]
+                },
+                'taxonomy': 'post_tag'}],
+            content_type='application/json')
+        responses.add(
+            responses.GET, settings.WP_URL + 'wp-json/wp/v2/categories/',
+            status=200,
+            json=[{
+                'count': 4,
+                'description': '',
+                'id': 1,
+                'link': 'https://example.com/blog/category/test/',
+                'meta': [],
+                'name': 'test',
+                'slug': 'test',
+                '_links': {
+                    'about': [
+                        {
+                            'href': 'https://example.com/wp-json/wp/v2/taxonomies/category'
+                        }
+                    ],
+                    'collection': [
+                        {
+                            'href': 'https://example.com/wp-json/wp/v2/categories'
+                        }
+                    ],
+                    'curies': [
+                        {
+                            'href': 'https://api.w.org/{rel}',
+                            'name': 'wp',
+                            'templated': True
+                        }
+                    ],
+                    'self': [
+                        {
+                            'href': 'https://example.com/wp-json/wp/v2/categories/1'
+                        }
+                    ],
+                    'wp:post_type': [
+                        {
+                            'href': 'https://example.com/wp-json/wp/v2/posts?categories=1'
+                        }
+                    ]
+                },
+                'taxonomy': 'category'}],
+            content_type='application/json')
         self.connector = WPApiConnector()
         self.default_response_kwargs = {
             'json': {'success': 'something found'},
@@ -70,11 +153,10 @@ class TestUtils(TestCase):
         """
         If the wp_api url is not defined, utils should
         return a message with configuration error.
-        TODO: This should raise an exception, not just return a message.
         """
-        connector = WPApiConnector()
-        posts = connector.get_posts()
-        self.assertTrue('configuration_error' in posts.keys())
+        with self.assertRaises(ImproperlyConfigured):
+            WPApiConnector()
+
 
     @responses.activate
     def test_connection_returns_error(self):
@@ -82,7 +164,7 @@ class TestUtils(TestCase):
         If server cannot be reached a message with server error
         should be returned
         """
-        connector = WPApiConnector()
+        connector = self.connector
         posts = connector.get_posts()
         self.assertTrue('server_error' in posts.keys())
 
