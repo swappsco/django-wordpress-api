@@ -1,64 +1,55 @@
 <section class="post" id="post">
-{% comment %}
-    When the image is small It does not generate medium_large
-    TODO: Find a cleaner approach
-{% endcomment %}
-{% if blog.featured_image.attachment_meta.sizes.medium_large.url %}
-	<img src="{{ blog.featured_image.attachment_meta.sizes.medium_large.url }}" alt="blog image">
-{% elif blog.featured_image.attachment_meta.sizes.medium.url %}
-	<img src="{{ blog.featured_image.attachment_meta.sizes.medium.url }}" alt="blog image">
+<h1>{{ blog.title.rendered | safe }}</h1>
+
+{% if blog.featured_image %}
+  {% if blog.featured_image.media_details.sizes.medium.source_url %}
+    <img src="{{ blog.featured_image.media_details.sizes.medium.source_url }}" alt="blog image from wordpress post">
+  {% elif blog.featured_image.media_details.sizes.medium.source_url %}
+    <img src="{{ blog.featured_image.media_details.sizes.medium.source_url }}" alt="blog image from wordpress post">
+  {% else %}
+    <img src="{{ blog.featured_image.source_url }}" alt="blog image from wordpress post">
+  {% endif %}
+{% else %}
+    <img src="" alt="default image if there is no blog image">
 {% endif %}
 
 	<div class="divider divider-primary"></div>
 	<div class="media">
-	  <div class="media-left">
-	    <a href="#">
-	    {% if blog.author.avatar %}
-	      <img class="media-object img-circle" src="{{ blog.author.avatar }}" width="50" height="50">
-	    {% else %}
-	      <img class="media-object img-circle" src="" width="50" height="50">
-	    {% endif %}
-	    </a>
-	  </div>
 	  <div>
-	    <p>By {{ blog.author.name }}&nbsp;|&nbsp;{{ bdate }}&nbsp;|&nbsp;{% if blog.terms.category %}{% endif %} {% for category in blog.terms.category %}&nbsp;<a href="{% url 'wordpress_api_blog_category_list' category.slug %}">{{ category.name }}</a>{% if not forloop.last %},{% endif %}{% endfor %}</p>
-	    <!-- Go to www.addthis.com/dashboard to customize your tools -->
+	    <p>By {% for author in blog.authors %}{{ author.name }}&nbsp;{% endfor %}|&nbsp;{{ bdate }}&nbsp;|&nbsp;{% if blog.terms.category %}{% endif %} {% for category in blog_categories %}&nbsp;<a href="{% url 'wordpress_api_blog_category_list' category.slug %}">{{ category.name }}</a>{% if not forloop.last %},{% endif %}{% endfor %}</p>
 	  </div>
 	</div>
-	<div>{{ blog.content | safe | linebreaksbr }}</div>
+	<div>{{ blog.content.rendered | safe | linebreaksbr }}</div>
 	<div>
-	{% for tag in blog.terms.post_tag %}
+	{% for tag in blog_tags %}
 		<a href="{% url 'wordpress_api_blog_tag_list' tag.slug %}"><span> {{ tag.name }}</span></a>
 	{% endfor %}
 	</div>
 </section>
 
 {% if related_blogs %}
+  <h3>related Blog Posts</h3>
   {% for blog in related_blogs %}
     <div class="col-md-6">
           <a href="{% url 'wordpress_api_blog_detail' blog.slug %}">
             {% if blog.featured_image %}
-                {% if blog.featured_image.errors.json_user_cannot_read %}
-                    <img src="" alt="default image if there is no blog image">
-                {% else %}
-                  {% if blog.featured_image.attachment_meta.sizes.medium.url %}
-                    <img src="{{ blog.featured_image.attachment_meta.sizes.medium.url }}" alt="blog image from wordpress post">
-                  {% elif blog.featured_image.source %}
-                    <img src="{{ blog.featured_image.source }}" alt="blog image from wordpress post">
-                  {% else %}
-                    <img src="{{ blog.featured_image.attachment_meta.sizes.thumbnail.url }}" alt="blog image from wordpress post">
-                  {% endif %}
-                {% endif %}
+              {% if blog.featured_image.media_details.sizes.medium.source_url %}
+                <img src="{{ blog.featured_image.media_details.sizes.medium.source_url }}" alt="blog image from wordpress post">
+              {% elif blog.featured_image.media_details.sizes.thumbnail.source_url %}
+                <img src="{{ blog.featured_image.media_details.sizes.thumbnail.source_url }}" alt="blog image from wordpress post">
+              {% else %}
+                <img src="{{ blog.featured_image.source_url }}" alt="blog image from wordpress post">
+              {% endif %}
             {% else %}
                 <img src="" alt="default image if there is no blog image">
             {% endif %}
           </a>
 
-          <a href="{% url 'wordpress_api_blog_detail' blog.slug %}"><h3>{{ blog.title | striptags | safe }}</h3></a>
+          <a href="{% url 'wordpress_api_blog_detail' blog.slug %}"><h3>{{ blog.title.rendered | striptags | safe }}</h3></a>
           <small>
               <small style="font-size:12px">{{ blog.author.name }}</small>&nbsp;&nbsp;&nbsp;<small style="font-size:12px">{{ blog.bdate }}</small>
           </small>
-          <p>{{ blog.excerpt | striptags | safe }}<a href="{% url 'wordpress_api_blog_detail' blog.slug %}">Continue reading</a></p>
+          <p>{{ blog.excerpt.rendered | striptags | safe }}<a href="{% url 'wordpress_api_blog_detail' blog.slug %}">Continue reading</a></p>
     </div>
     {% empty %}
     <p>

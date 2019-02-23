@@ -128,19 +128,17 @@ class BlogView(ParentBlogView):
         return wp_api
 
     def get_context_data(self, **kwargs):
-        blog = cache.get("blog_cache_detail_" + kwargs.get('slug') +
-                         self.blog_language)
-
+        blog = cache.get("blog_cache_detail_{}_{}".format(
+            kwargs.get('slug'), self.blog_language))
         api_kwargs = self.get_wp_api_kwargs(**kwargs)
         blog = self.connector.get_posts(
             **api_kwargs) if blog is None else blog
         tags = self.connector.tags
         categories = self.connector.categories
-
         cache.add(
-            "blog_cache_detail_" + kwargs.get('slug') + self.blog_language,
+            "blog_cache_detail_{}_{}".format(
+                kwargs.get('slug'), self.blog_language),
             blog, cache_time)
-
         if 'server_error' in blog or\
            'server_error' in tags:
             messages.add_message(self.request, messages.ERROR,
@@ -152,23 +150,51 @@ class BlogView(ParentBlogView):
         bdate = iso8601.parse_date(blog['body'][0]['date'])
 
         blog = blog['body'][0]
-        blog_tags = ''
-        if 'post_tag' in blog['terms']:
-            for tag in blog['terms']['post_tag']:
-                blog_tags = blog_tags + tag['slug'] + ','
+        blog_categories = []
+        blog['slug'] = str(blog['slug'])
+        blog['bdate'] = iso8601.parse_date(blog['date']).date()
+        featured_media = blog.get(
+            '_embedded', {}).get('wp:featuredmedia', [])
+        authors = blog.get(
+            '_embedded', {}).get('author', [])
+        if featured_media:
+            blog['featured_image'] = featured_media[0]
+        if authors:
+            blog['authors'] = authors
+        if 'categories' in blog:
+            for category in categories:
+                if category['id'] in blog['categories']:
+                    blog_categories.append(category)
+        blog_tags = []
+        if 'tags' in blog:
+            for tag in tags:
+                if tag['id'] in blog['tags']:
+                    blog_tags.append(tag)
             if blog_tags:
                 related_blogs = cache.get(
-                    "blog_cache_detail_related" + kwargs.get('slug') +
-                    self.blog_language)
-
+                    "blog_cache_detail_related_{}_{}".format(
+                        kwargs.get('slug'), self.blog_language))
+                tag_query = ",".join([str(tag['id']) for tag in blog_tags])
                 related_blogs = self.connector.get_posts(
-                    wp_filter={'tag': blog_tags},
+                    wp_filter={'tag': tag_query},
                     page_number=1,
                     orderby='date')['body'] if related_blogs is None else\
                     related_blogs
+                for related_blog in related_blogs:
+                    related_blog['slug'] = str(related_blog['slug'])
+                    related_blog['bdate'] = iso8601.parse_date(
+                        related_blog['date']).date()
+                    featured_media = related_blog.get(
+                        '_embedded', {}).get('wp:featuredmedia', [])
+                    authors = related_blog.get(
+                        '_embedded', {}).get('author', [])
+                    if featured_media:
+                        related_blog['featured_image'] = featured_media[0]
+                    if authors:
+                        related_blog['authors'] = authors
                 cache.add(
-                    "blog_cache_detail_related" + kwargs.get('slug') +
-                    self.blog_language,
+                    "blog_cache_detail_related_{}_{}".format(
+                        kwargs.get('slug'), self.blog_language),
                     related_blogs, cache_time)
 
                 for related in related_blogs:
@@ -185,6 +211,8 @@ class BlogView(ParentBlogView):
             'categories': categories,
             'related_blogs': related_blogs[:3],
             'blog': blog,
+            'blog_tags': blog_tags,
+            'blog_categories': blog_categories,
             'bdate': bdate.date(),
         }
         return context
