@@ -10,7 +10,7 @@ except AttributeError:
     cache_time = 0
 
 try:
-    cache_time = settings.BLOG_POSTS_PER_PAGE
+    blog_per_page = settings.BLOG_POSTS_PER_PAGE
 except AttributeError:
     blog_per_page = 10
 
