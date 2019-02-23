@@ -225,8 +225,16 @@ class CategoryBlogListView(ParentBlogView):
     template_name = 'wordpress_api/blog_list.html'
 
     def get_wp_api_kwargs(self, **kwargs):
+        slug = kwargs.get('slug')
+        self.category = None
+        for category in self.connector.categories:
+            if category['slug'] == slug:
+                self.category = category
+                break
+        if self.category is None:
+            raise Http404
         wp_api = super(CategoryBlogListView, self).get_wp_api_kwargs(**kwargs)
-        wp_api['wp_filter'] = {'category_name': kwargs.get('slug')}
+        wp_api['wp_filter'] = {'categories': self.category['id']}
         return wp_api
 
     def get(self, request, **kwargs):
@@ -242,12 +250,8 @@ class CategoryBlogListView(ParentBlogView):
             kwargs.get('slug') + self.blog_language + '_page_' + str(page),
             context, cache_time)
         category_name = None
-        if context['blogs']:
-            for item in context['blogs'][0]['terms']['category']:
-                if str(item['slug']) == kwargs.get('slug'):
-                    context['category'] = item
-                    category_name = item['name']
-
+        context['category'] = self.category
+        category_name = self.category['name']
         context['category_name'] = category_name
         return render(request, self.template_name, context)
 
@@ -259,8 +263,16 @@ class TagBlogListView(ParentBlogView):
     template_name = 'wordpress_api/blog_list.html'
 
     def get_wp_api_kwargs(self, **kwargs):
+        slug = kwargs.get('slug')
+        self.tag = None
+        for tag in self.connector.tags:
+            if tag['slug'] == slug:
+                self.tag = tag
+                break
+        if self.tag is None:
+            raise Http404
         wp_api = super(TagBlogListView, self).get_wp_api_kwargs(**kwargs)
-        wp_api['wp_filter'] = {'tag': kwargs.get('slug')}
+        wp_api['wp_filter'] = {'tags': self.tag['id']}
         return wp_api
 
     def get(self, request, **kwargs):
@@ -274,12 +286,8 @@ class TagBlogListView(ParentBlogView):
                   self.blog_language + '_page_' + str(page),
                   context, cache_time)
         category_name = None
-        if context['blogs']:
-            for item in context['blogs'][0]['terms']['post_tag']:
-                if str(item['slug']) == kwargs.get('slug'):
-                    context['tag'] = item
-                    category_name = item['name']
-
+        context['tag'] = self.tag
+        category_name = self.tag['name']
         context['tag_name'] = category_name
         return render(request, self.template_name, context)
 
