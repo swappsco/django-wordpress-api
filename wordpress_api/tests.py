@@ -157,7 +157,6 @@ class TestUtils(TestCase):
         with self.assertRaises(ImproperlyConfigured):
             WPApiConnector()
 
-
     @responses.activate
     def test_connection_returns_error(self):
         """
@@ -336,13 +335,116 @@ class TestViews(TestCase):
         responses.add(responses.GET, settings.WP_URL + 'wp-json/wp/v2/posts/',
                       **self.default_response_kwargs)
         responses.add(
-            responses.GET, settings.WP_URL +
-            'wp-json/wp/v2/tags/',
-            **self.default_response_kwargs)
+            responses.GET, settings.WP_URL + 'wp-json/wp/v2/users/',
+            status=200,
+            json=[{
+                "id": 2,
+                "name": "test-slug",
+                "url": "",
+                "description": "",
+                "link": "https://example.com/blog/author/test-slug/",
+                "slug": "test-slug",
+                "avatar_urls": {
+                    "24": "https://example.com/test-avatar",
+                },
+                "meta": [],
+                "_links": {
+                    "self": [
+                        {
+                            "href": "https://example.com/wp-json/wp/v2/users/2"
+                        }
+                    ],
+                    "collection": [
+                        {
+                            "href": "https://example.com/wp-json/wp/v2/users"
+                        }
+                    ]
+                }
+            }],
+            content_type='application/json')
         responses.add(
-            responses.GET, settings.WP_URL +
-            'wp-json/wp/v2/categories/',
-            **self.default_response_kwargs)
+            responses.GET, settings.WP_URL + 'wp-json/wp/v2/tags/',
+            status=200,
+            json=[{
+                'count': 1,
+                'description': '',
+                'id': 1,
+                'link': 'https://example.com/blog/tag/test/',
+                'meta': [],
+                'name': 'test',
+                'slug': 'test',
+                '_links': {
+                    'about': [
+                        {
+                            'href': 'https://example.com/wp-json/wp/v2/taxonomies/post_tag'
+                        }
+                    ],
+                    'collection': [
+                        {
+                            'href': 'https://example.com/wp-json/wp/v2/tags'
+                        }
+                    ],
+                    'curies': [
+                        {
+                            'href': 'https://api.w.org/{rel}',
+                            'name': 'wp',
+                            'templated': True
+                        }
+                    ],
+                    'self': [{
+                        'href': 'https://example.com/wp-json/wp/v2/tags/1'
+                    }],
+                    'wp:post_type': [
+                        {
+                            'href': 'https://example.com/wp-json/wp/v2/posts?tags=1'
+                        }
+                    ]
+                },
+                'taxonomy': 'post_tag'}],
+            content_type='application/json')
+        responses.add(
+            responses.GET, settings.WP_URL + 'wp-json/wp/v2/categories/',
+            status=200,
+            json=[{
+                'count': 4,
+                'description': '',
+                'id': 1,
+                'link': 'https://example.com/blog/category/test/',
+                'meta': [],
+                'name': 'test',
+                'slug': 'test',
+                '_links': {
+                    'about': [
+                        {
+                            'href': 'https://example.com/wp-json/wp/v2/taxonomies/category'
+                        }
+                    ],
+                    'collection': [
+                        {
+                            'href': 'https://example.com/wp-json/wp/v2/categories'
+                        }
+                    ],
+                    'curies': [
+                        {
+                            'href': 'https://api.w.org/{rel}',
+                            'name': 'wp',
+                            'templated': True
+                        }
+                    ],
+                    'self': [
+                        {
+                            'href': 'https://example.com/wp-json/wp/v2/categories/1'
+                        }
+                    ],
+                    'wp:post_type': [
+                        {
+                            'href': 'https://example.com/wp-json/wp/v2/posts?categories=1'
+                        }
+                    ]
+                },
+                'taxonomy': 'category'}],
+            content_type='application/json')
+
         response = self.client.get(reverse('wordpress_api_blog_list'))
         self.assertEqual(response.status_code, 200)
 
@@ -364,13 +466,115 @@ class TestViews(TestCase):
         responses.add(responses.GET, settings.WP_URL + 'wp-json/wp/v2/posts/',
                       **self.default_response_kwargs)
         responses.add(
-            responses.GET, settings.WP_URL +
-            'wp-json/wp/v2/tags/',
-            **self.default_response_kwargs)
+            responses.GET, settings.WP_URL + 'wp-json/wp/v2/users/',
+            status=200,
+            json=[{
+                "id": 2,
+                "name": "test-slug",
+                "url": "",
+                "description": "",
+                "link": "https://example.com/blog/author/test-slug/",
+                "slug": "test-slug",
+                "avatar_urls": {
+                    "24": "https://example.com/test-avatar",
+                },
+                "meta": [],
+                "_links": {
+                    "self": [
+                        {
+                            "href": "https://example.com/wp-json/wp/v2/users/2"
+                        }
+                    ],
+                    "collection": [
+                        {
+                            "href": "https://example.com/wp-json/wp/v2/users"
+                        }
+                    ]
+                }
+            }],
+            content_type='application/json')
         responses.add(
-            responses.GET, settings.WP_URL +
-            'wp-json/wp/v2/categories/',
-            **self.default_response_kwargs)
+            responses.GET, settings.WP_URL + 'wp-json/wp/v2/tags/',
+            status=200,
+            json=[{
+                'count': 1,
+                'description': '',
+                'id': 1,
+                'link': 'https://example.com/blog/tag/test/',
+                'meta': [],
+                'name': 'test',
+                'slug': 'test',
+                '_links': {
+                    'about': [
+                        {
+                            'href': 'https://example.com/wp-json/wp/v2/taxonomies/post_tag'
+                        }
+                    ],
+                    'collection': [
+                        {
+                            'href': 'https://example.com/wp-json/wp/v2/tags'
+                        }
+                    ],
+                    'curies': [
+                        {
+                            'href': 'https://api.w.org/{rel}',
+                            'name': 'wp',
+                            'templated': True
+                        }
+                    ],
+                    'self': [{
+                        'href': 'https://example.com/wp-json/wp/v2/tags/1'
+                    }],
+                    'wp:post_type': [
+                        {
+                            'href': 'https://example.com/wp-json/wp/v2/posts?tags=1'
+                        }
+                    ]
+                },
+                'taxonomy': 'post_tag'}],
+            content_type='application/json')
+        responses.add(
+            responses.GET, settings.WP_URL + 'wp-json/wp/v2/categories/',
+            status=200,
+            json=[{
+                'count': 4,
+                'description': '',
+                'id': 1,
+                'link': 'https://example.com/blog/category/test/',
+                'meta': [],
+                'name': 'test',
+                'slug': 'test',
+                '_links': {
+                    'about': [
+                        {
+                            'href': 'https://example.com/wp-json/wp/v2/taxonomies/category'
+                        }
+                    ],
+                    'collection': [
+                        {
+                            'href': 'https://example.com/wp-json/wp/v2/categories'
+                        }
+                    ],
+                    'curies': [
+                        {
+                            'href': 'https://api.w.org/{rel}',
+                            'name': 'wp',
+                            'templated': True
+                        }
+                    ],
+                    'self': [
+                        {
+                            'href': 'https://example.com/wp-json/wp/v2/categories/1'
+                        }
+                    ],
+                    'wp:post_type': [
+                        {
+                            'href': 'https://example.com/wp-json/wp/v2/posts?categories=1'
+                        }
+                    ]
+                },
+                'taxonomy': 'category'}],
+            content_type='application/json')
         response = self.client.get(
             reverse('wordpress_api_blog_detail', args=('test-blog',)))
         self.assertEqual(response.status_code, 200)
@@ -415,16 +619,119 @@ class TestViews(TestCase):
         responses.add(responses.GET, settings.WP_URL + 'wp-json/wp/v2/posts/',
                       **self.default_response_kwargs)
         responses.add(
-            responses.GET, settings.WP_URL +
-            'wp-json/wp/v2/tags/',
-            **self.default_response_kwargs)
+            responses.GET, settings.WP_URL + 'wp-json/wp/v2/users/',
+            status=200,
+            json=[{
+                "id": 2,
+                "name": "test-slug",
+                "url": "",
+                "description": "",
+                "link": "https://example.com/blog/author/test-slug/",
+                "slug": "test-slug",
+                "avatar_urls": {
+                    "24": "https://example.com/test-avatar",
+                },
+                "meta": [],
+                "_links": {
+                    "self": [
+                        {
+                            "href": "https://example.com/wp-json/wp/v2/users/2"
+                        }
+                    ],
+                    "collection": [
+                        {
+                            "href": "https://example.com/wp-json/wp/v2/users"
+                        }
+                    ]
+                }
+            }],
+            content_type='application/json')
         responses.add(
-            responses.GET, settings.WP_URL +
-            'wp-json/wp/v2/categories/',
-            **self.default_response_kwargs)
+            responses.GET, settings.WP_URL + 'wp-json/wp/v2/tags/',
+            status=200,
+            json=[{
+                'count': 1,
+                'description': '',
+                'id': 1,
+                'link': 'https://example.com/blog/tag/test/',
+                'meta': [],
+                'name': 'test',
+                'slug': 'test',
+                '_links': {
+                    'about': [
+                        {
+                            'href': 'https://example.com/wp-json/wp/v2/taxonomies/post_tag'
+                        }
+                    ],
+                    'collection': [
+                        {
+                            'href': 'https://example.com/wp-json/wp/v2/tags'
+                        }
+                    ],
+                    'curies': [
+                        {
+                            'href': 'https://api.w.org/{rel}',
+                            'name': 'wp',
+                            'templated': True
+                        }
+                    ],
+                    'self': [{
+                        'href': 'https://example.com/wp-json/wp/v2/tags/1'
+                    }],
+                    'wp:post_type': [
+                        {
+                            'href': 'https://example.com/wp-json/wp/v2/posts?tags=1'
+                        }
+                    ]
+                },
+                'taxonomy': 'post_tag'}],
+            content_type='application/json')
+        responses.add(
+            responses.GET, settings.WP_URL + 'wp-json/wp/v2/categories/',
+            status=200,
+            json=[{
+                'count': 4,
+                'description': '',
+                'id': 1,
+                'link': 'https://example.com/blog/category/test/',
+                'meta': [],
+                'name': 'test',
+                'slug': 'test',
+                '_links': {
+                    'about': [
+                        {
+                            'href': 'https://example.com/wp-json/wp/v2/taxonomies/category'
+                        }
+                    ],
+                    'collection': [
+                        {
+                            'href': 'https://example.com/wp-json/wp/v2/categories'
+                        }
+                    ],
+                    'curies': [
+                        {
+                            'href': 'https://api.w.org/{rel}',
+                            'name': 'wp',
+                            'templated': True
+                        }
+                    ],
+                    'self': [
+                        {
+                            'href': 'https://example.com/wp-json/wp/v2/categories/1'
+                        }
+                    ],
+                    'wp:post_type': [
+                        {
+                            'href': 'https://example.com/wp-json/wp/v2/posts?categories=1'
+                        }
+                    ]
+                },
+                'taxonomy': 'category'}],
+            content_type='application/json')
+
         response = self.client.get(
             reverse('wordpress_api_blog_category_list',
-                    args=('test-category',)))
+                    args=('test',)))
         self.assertEqual(response.status_code, 200)
 
     @responses.activate
@@ -448,16 +755,119 @@ class TestViews(TestCase):
         responses.add(responses.GET, settings.WP_URL + 'wp-json/wp/v2/posts/',
                       **self.default_response_kwargs)
         responses.add(
-            responses.GET, settings.WP_URL +
-            'wp-json/wp/v2/tags/',
-            **self.default_response_kwargs)
+            responses.GET, settings.WP_URL + 'wp-json/wp/v2/users/',
+            status=200,
+            json=[{
+                "id": 2,
+                "name": "test-slug",
+                "url": "",
+                "description": "",
+                "link": "https://example.com/blog/author/test-slug/",
+                "slug": "test-slug",
+                "avatar_urls": {
+                    "24": "https://example.com/test-avatar",
+                },
+                "meta": [],
+                "_links": {
+                    "self": [
+                        {
+                            "href": "https://example.com/wp-json/wp/v2/users/2"
+                        }
+                    ],
+                    "collection": [
+                        {
+                            "href": "https://example.com/wp-json/wp/v2/users"
+                        }
+                    ]
+                }
+            }],
+            content_type='application/json')
         responses.add(
-            responses.GET, settings.WP_URL +
-            'wp-json/wp/v2/categories/',
-            **self.default_response_kwargs)
+            responses.GET, settings.WP_URL + 'wp-json/wp/v2/tags/',
+            status=200,
+            json=[{
+                'count': 1,
+                'description': '',
+                'id': 1,
+                'link': 'https://example.com/blog/tag/test/',
+                'meta': [],
+                'name': 'test',
+                'slug': 'test',
+                '_links': {
+                    'about': [
+                        {
+                            'href': 'https://example.com/wp-json/wp/v2/taxonomies/post_tag'
+                        }
+                    ],
+                    'collection': [
+                        {
+                            'href': 'https://example.com/wp-json/wp/v2/tags'
+                        }
+                    ],
+                    'curies': [
+                        {
+                            'href': 'https://api.w.org/{rel}',
+                            'name': 'wp',
+                            'templated': True
+                        }
+                    ],
+                    'self': [{
+                        'href': 'https://example.com/wp-json/wp/v2/tags/1'
+                    }],
+                    'wp:post_type': [
+                        {
+                            'href': 'https://example.com/wp-json/wp/v2/posts?tags=1'
+                        }
+                    ]
+                },
+                'taxonomy': 'post_tag'}],
+            content_type='application/json')
+        responses.add(
+            responses.GET, settings.WP_URL + 'wp-json/wp/v2/categories/',
+            status=200,
+            json=[{
+                'count': 4,
+                'description': '',
+                'id': 1,
+                'link': 'https://example.com/blog/category/test/',
+                'meta': [],
+                'name': 'test',
+                'slug': 'test',
+                '_links': {
+                    'about': [
+                        {
+                            'href': 'https://example.com/wp-json/wp/v2/taxonomies/category'
+                        }
+                    ],
+                    'collection': [
+                        {
+                            'href': 'https://example.com/wp-json/wp/v2/categories'
+                        }
+                    ],
+                    'curies': [
+                        {
+                            'href': 'https://api.w.org/{rel}',
+                            'name': 'wp',
+                            'templated': True
+                        }
+                    ],
+                    'self': [
+                        {
+                            'href': 'https://example.com/wp-json/wp/v2/categories/1'
+                        }
+                    ],
+                    'wp:post_type': [
+                        {
+                            'href': 'https://example.com/wp-json/wp/v2/posts?categories=1'
+                        }
+                    ]
+                },
+                'taxonomy': 'category'}],
+            content_type='application/json')
+
         response = self.client.get(
             reverse('wordpress_api_blog_tag_list',
-                    args=('test-tag',)))
+                    args=('test',)))
         self.assertEqual(response.status_code, 200)
 
     @responses.activate
@@ -488,6 +898,34 @@ class TestViews(TestCase):
             responses.GET, settings.WP_URL +
             'wp-json/wp/v2/categories/',
             **self.default_response_kwargs)
+        responses.add(
+            responses.GET, settings.WP_URL + 'wp-json/wp/v2/users/',
+            status=200,
+            json=[{
+                "id": 2,
+                "name": "test-slug",
+                "url": "",
+                "description": "",
+                "link": "https://example.com/blog/author/test-slug/",
+                "slug": "test-slug",
+                "avatar_urls": {
+                    "24": "https://example.com/test-avatar",
+                },
+                "meta": [],
+                "_links": {
+                    "self": [
+                        {
+                            "href": "https://example.com/wp-json/wp/v2/users/2"
+                        }
+                    ],
+                    "collection": [
+                        {
+                            "href": "https://example.com/wp-json/wp/v2/users"
+                        }
+                    ]
+                }
+            }],
+            content_type='application/json')
         response = self.client.get(
             reverse('wordpress_api_blog_by_author_list',
                     args=('test-slug',)))
