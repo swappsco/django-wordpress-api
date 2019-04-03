@@ -139,6 +139,17 @@ class TestUtils(TestCase):
             'content_type': 'application/json',
         }
 
+    def test_connector_load_meta_data(self):
+        """
+        if load_meta_data is False, the wordpress
+        metadata should be empty
+        """
+
+        connector = WPApiConnector(load_meta_data=False)
+        self.assertFalse(connector.authors)
+        self.assertFalse(connector.categories)
+        self.assertFalse(connector.tags)
+
     def test_connector_gets_all_authors(self):
         """
         connector object should have the authors as one
@@ -182,6 +193,89 @@ class TestUtils(TestCase):
         self.assertTrue('server_error' in posts.keys())
 
     @responses.activate
+    def test_error_status_propagates_authors(self):
+        """
+        When we get a non 200 status from the server,
+        an error indicating that something happened along with the
+        status code is required.
+        """
+        responses.add(responses.GET, settings.WP_URL + 'wp-json/wp/v2/users/',
+                      status=404,
+                      content_type='application/json')
+
+        authors = self.connector.get_authors()
+        self.assertTrue('server_error' in authors.keys())
+
+    @responses.activate
+    def test_authors_gets_several_pages(self):
+        """
+        When the endpoint returns several pages, the
+        get_authors method should get all the data
+        from all the pages
+        """
+        responses.add(
+            responses.GET, settings.WP_URL + 'wp-json/wp/v2/users/',
+            status=200,
+            headers={'X-WP-TotalPages': "2"},
+            json=[{
+                "id": 2,
+                "name": "test-slug",
+                "url": "",
+                "description": "",
+                "link": "https://example.com/blog/author/test-slug/",
+                "slug": "test-slug",
+                "avatar_urls": {
+                    "24": "https://example.com/test-avatar",
+                },
+                "meta": [],
+                "_links": {
+                    "self": [
+                        {
+                            "href": "https://example.com/wp-json/wp/v2/users/2"
+                        }
+                    ],
+                    "collection": [
+                        {
+                            "href": "https://example.com/wp-json/wp/v2/users"
+                        }
+                    ]
+                }
+            }],
+            content_type='application/json')
+        responses.add(
+            responses.GET, settings.WP_URL + 'wp-json/wp/v2/users/',
+            status=200,
+            headers={'X-WP-TotalPages': "2"},
+            json=[{
+                "id": 2,
+                "name": "test-slug-2",
+                "url": "",
+                "description": "",
+                "link": "https://example.com/blog/author/test-slug/",
+                "slug": "test-slug-2",
+                "avatar_urls": {
+                    "24": "https://example.com/test-avatar",
+                },
+                "meta": [],
+                "_links": {
+                    "self": [
+                        {
+                            "href": "https://example.com/wp-json/wp/v2/users/2"
+                        }
+                    ],
+                    "collection": [
+                        {
+                            "href": "https://example.com/wp-json/wp/v2/users"
+                        }
+                    ]
+                }
+            }],
+            content_type='application/json')
+
+        authors = self.connector.get_authors()
+        self.assertEqual(2, len(authors.keys()))
+
+    @responses.activate
     def test_connection_error_propagates(self):
         """
         When we get a connection error from the server,
@@ -205,6 +299,98 @@ class TestUtils(TestCase):
 
         posts = self.connector.get_tags()
         self.assertTrue('server_error' in posts.keys())
+
+    @responses.activate
+    def test_tags_gets_several_pages(self):
+        """
+        When the endpoint returns several pages, the
+        get_tags method should get all the data
+        from all the pages
+        """
+        responses.add(
+            responses.GET, settings.WP_URL + 'wp-json/wp/v2/tags/',
+            status=200,
+            headers={'X-WP-TotalPages': "2"},
+            json=[{
+                'count': 1,
+                'description': '',
+                'id': 1,
+                'link': 'https://example.com/blog/tag/test/',
+                'meta': [],
+                'name': 'test',
+                'slug': 'test',
+                '_links': {
+                    'about': [
+                        {
+                            'href': 'https://example.com/wp-json/wp/v2/taxonomies/post_tag'
+                        }
+                    ],
+                    'collection': [
+                        {
+                            'href': 'https://example.com/wp-json/wp/v2/tags'
+                        }
+                    ],
+                    'curies': [
+                        {
+                            'href': 'https://api.w.org/{rel}',
+                            'name': 'wp',
+                            'templated': True
+                        }
+                    ],
+                    'self': [{
+                        'href': 'https://example.com/wp-json/wp/v2/tags/1'
+                    }],
+                    'wp:post_type': [
+                        {
+                            'href': 'https://example.com/wp-json/wp/v2/posts?tags=1'
+                        }
+                    ]
+                },
+                'taxonomy': 'post_tag'}],
+            content_type='application/json')
+        responses.add(
+            responses.GET, settings.WP_URL + 'wp-json/wp/v2/tags/',
+            status=200,
+            headers={'X-WP-TotalPages': "2"},
+            json=[{
+                'count': 1,
+                'description': '',
+                'id': 1,
+                'link': 'https://example.com/blog/tag/test/',
+                'meta': [],
+                'name': 'test 2',
+                'slug': 'test-2',
+                '_links': {
+                    'about': [
+                        {
+                            'href': 'https://example.com/wp-json/wp/v2/taxonomies/post_tag'
+                        }
+                    ],
+                    'collection': [
+                        {
+                            'href': 'https://example.com/wp-json/wp/v2/tags'
+                        }
+                    ],
+                    'curies': [
+                        {
+                            'href': 'https://api.w.org/{rel}',
+                            'name': 'wp',
+                            'templated': True
+                        }
+                    ],
+                    'self': [{
+                        'href': 'https://example.com/wp-json/wp/v2/tags/1'
+                    }],
+                    'wp:post_type': [
+                        {
+                            'href': 'https://example.com/wp-json/wp/v2/posts?tags=1'
+                        }
+                    ]
+                },
+                'taxonomy': 'post_tag'}],
+            content_type='application/json')
+        tags = self.connector.get_tags()
+        self.assertEqual(2, len(tags))
 
     @responses.activate
     def test_connection_error_propagates_get_tags(self):
@@ -240,6 +426,102 @@ class TestUtils(TestCase):
         """
         posts = self.connector.get_categories()
         self.assertTrue('server_error' in posts.keys())
+
+    @responses.activate
+    def test_categories_gets_several_pages(self):
+        """
+        When the endpoint returns several pages, the
+        get_categories method should get all the data
+        from all the pages
+        """
+        responses.add(
+            responses.GET, settings.WP_URL + 'wp-json/wp/v2/categories/',
+            status=200,
+            headers={'X-WP-TotalPages': "2"},
+            json=[{
+                'count': 4,
+                'description': '',
+                'id': 1,
+                'link': 'https://example.com/blog/category/test/',
+                'meta': [],
+                'name': 'test',
+                'slug': 'test',
+                '_links': {
+                    'about': [
+                        {
+                            'href': 'https://example.com/wp-json/wp/v2/taxonomies/category'
+                        }
+                    ],
+                    'collection': [
+                        {
+                            'href': 'https://example.com/wp-json/wp/v2/categories'
+                        }
+                    ],
+                    'curies': [
+                        {
+                            'href': 'https://api.w.org/{rel}',
+                            'name': 'wp',
+                            'templated': True
+                        }
+                    ],
+                    'self': [
+                        {
+                            'href': 'https://example.com/wp-json/wp/v2/categories/1'
+                        }
+                    ],
+                    'wp:post_type': [
+                        {
+                            'href': 'https://example.com/wp-json/wp/v2/posts?categories=1'
+                        }
+                    ]
+                },
+                'taxonomy': 'category'}],
+            content_type='application/json')
+        responses.add(
+            responses.GET, settings.WP_URL + 'wp-json/wp/v2/categories/',
+            status=200,
+            headers={'X-WP-TotalPages': "2"},
+            json=[{
+                'count': 4,
+                'description': '',
+                'id': 1,
+                'link': 'https://example.com/blog/category/test/',
+                'meta': [],
+                'name': 'test 2',
+                'slug': 'test-2',
+                '_links': {
+                    'about': [
+                        {
+                            'href': 'https://example.com/wp-json/wp/v2/taxonomies/category'
+                        }
+                    ],
+                    'collection': [
+                        {
+                            'href': 'https://example.com/wp-json/wp/v2/categories'
+                        }
+                    ],
+                    'curies': [
+                        {
+                            'href': 'https://api.w.org/{rel}',
+                            'name': 'wp',
+                            'templated': True
+                        }
+                    ],
+                    'self': [
+                        {
+                            'href': 'https://example.com/wp-json/wp/v2/categories/1'
+                        }
+                    ],
+                    'wp:post_type': [
+                        {
+                            'href': 'https://example.com/wp-json/wp/v2/posts?categories=1'
+                        }
+                    ]
+                },
+                'taxonomy': 'category'}],
+            content_type='application/json')
+        categories = self.connector.get_categories()
+        self.assertEqual(2, len(categories))
 
     @responses.activate
     def test_connector_uses_orderby(self):
