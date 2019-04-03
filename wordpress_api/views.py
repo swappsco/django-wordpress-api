@@ -23,7 +23,7 @@ class ParentBlogView(View):
 
     def __init__(self, *args, **kwargs):
         super(ParentBlogView, self).__init__(*args, **kwargs)
-        try:
+        try:  # pragma: no cover
             allow_language = settings.WP_API_ALLOW_LANGUAGE
             if allow_language:
                 self.blog_language = str(get_language())
@@ -50,7 +50,7 @@ class ParentBlogView(View):
     def get_wp_api_kwargs(self, **kwargs):
         try:
             page = int(self.request.GET.get('page', 1))
-        except ValueError:
+        except ValueError:  # pragma: no cover
             page = 1
         wp_api = {
             'page_number': page
@@ -64,7 +64,6 @@ class ParentBlogView(View):
         blogs = self.connector.get_posts(**api_kwargs)
         tags = self.connector.tags
         categories = self.connector.categories
-
         if 'server_error' in blogs:
             messages.add_message(self.request, messages.ERROR,
                                  blogs['server_error'])
@@ -98,7 +97,6 @@ class ParentBlogView(View):
     def get(self, request, **kwargs):
         context = self.get_context_data(**kwargs)
         return render(request, self.template_name, context)
-
 
 
 class BlogListView(ParentBlogView):
