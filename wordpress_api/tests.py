@@ -590,6 +590,31 @@ class TestViews(TestCase):
     def setUp(self):
         self.default_response_kwargs = {
             'json': [{
+                "tags": [
+                    1
+                ],
+                "categories": [
+                    1
+                ],
+                "_embedded": {
+                    "author": [
+                        {
+                            "id": 12,
+                            "name": "test-slug",
+                            "url": "",
+                            "link": "https://example.com/blog/author/test-slug/",
+                            "slug": "test-slug",
+                            "avatar_urls": {
+                                "24": "https://example.com/test-avatar",
+                            },
+                        }
+                    ],
+                    "wp:featuredmedia": [
+                        {
+                            "id": 4543,
+                        }
+                    ],
+                },
                 'excerpt': 'test blog',
                 'slug': 'test-blog',
                 'date': '2007-01-25T12:00:00Z',
@@ -1931,11 +1956,109 @@ class TestViews(TestCase):
         self.assertEqual(response.status_code, 200)
 
     @responses.activate
+    def test_author_view_return_404_if_author_does_not_exists(self):
+        """
+        If the author does not exists, it raises 404
+        """
+        responses.add(responses.GET, settings.WP_URL + 'wp-json/wp/v2/posts/',
+                      **self.default_response_kwargs)
+        responses.add(
+            responses.GET, settings.WP_URL +
+            'wp-json/wp/v2/tags/',
+            **self.default_response_kwargs)
+        responses.add(
+            responses.GET, settings.WP_URL +
+            'wp-json/wp/v2/categories/',
+            **self.default_response_kwargs)
+        responses.add(
+            responses.GET, settings.WP_URL + 'wp-json/wp/v2/users/',
+            status=200,
+            json=[{
+                "id": 2,
+                "name": "test-slug",
+                "url": "",
+                "description": "",
+                "link": "https://example.com/blog/author/test-slug/",
+                "slug": "test-slug",
+                "avatar_urls": {
+                    "24": "https://example.com/test-avatar",
+                },
+                "meta": [],
+                "_links": {
+                    "self": [
+                        {
+                            "href": "https://example.com/wp-json/wp/v2/users/2"
+                        }
+                    ],
+                    "collection": [
+                        {
+                            "href": "https://example.com/wp-json/wp/v2/users"
+                        }
+                    ]
+                }
+            }],
+            content_type='application/json')
+        response = self.client.get(
+            reverse('wordpress_api_blog_by_author_list',
+                    args=('not-existing',)))
+        self.assertEqual(response.status_code, 404)
+
+    @responses.activate
     def test_author_view_return_404_if_server_error(self):
         """
         If there is a problem with the wp server, it should
         return 404
         """
+        response = self.client.get(
+            reverse('wordpress_api_blog_by_author_list',
+                    args=('test-slug',)))
+        self.assertEqual(response.status_code, 404)
+
+    @responses.activate
+    def test_author_view_return_404_no_blogs(self):
+        """
+        If the wp client get no blogs, returns 404
+        """
+        responses.add(responses.GET, settings.WP_URL + 'wp-json/wp/v2/posts/',
+                      json=[],
+                      status=200,
+                      content_type='application/json')
+        responses.add(
+            responses.GET, settings.WP_URL +
+            'wp-json/wp/v2/tags/',
+            **self.default_response_kwargs)
+        responses.add(
+            responses.GET, settings.WP_URL +
+            'wp-json/wp/v2/categories/',
+            **self.default_response_kwargs)
+        responses.add(
+            responses.GET, settings.WP_URL + 'wp-json/wp/v2/users/',
+            status=200,
+            json=[{
+                "id": 2,
+                "name": "test-slug",
+                "url": "",
+                "description": "",
+                "link": "https://example.com/blog/author/test-slug/",
+                "slug": "test-slug",
+                "avatar_urls": {
+                    "24": "https://example.com/test-avatar",
+                },
+                "meta": [],
+                "_links": {
+                    "self": [
+                        {
+                            "href": "https://example.com/wp-json/wp/v2/users/2"
+                        }
+                    ],
+                    "collection": [
+                        {
+                            "href": "https://example.com/wp-json/wp/v2/users"
+                        }
+                    ]
+                }
+            }],
+            content_type='application/json')
         response = self.client.get(
             reverse('wordpress_api_blog_by_author_list',
                     args=('test-slug',)))
