@@ -338,6 +338,3 @@ class BlogByAuthorListView(ParentBlogView):
                         context['author_name'] = author_name
                         return render(
                             request, self.template_name, context)
-
-        context['author_name'] = author_name
-        return render(request, self.template_name, context)
