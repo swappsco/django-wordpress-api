@@ -314,7 +314,7 @@ class BlogByAuthorListView(ParentBlogView):
         if slug in authors:
             wp_api['wp_filter'] = {'author': authors[slug]['id']}
         else:
-            wp_api['wp_filter'] = {'author': -1}
+            raise Http404
         return wp_api
 
     def get(self, request, **kwargs):
