@@ -11,7 +11,7 @@ except AttributeError:
 
 try:
     blog_per_page = settings.BLOG_POSTS_PER_PAGE
-except AttributeError:
+except AttributeError:  # pragma: no cover
     blog_per_page = 10
 
 
@@ -56,7 +56,6 @@ class WPApiConnector(object):
         except (ConnectionError, Timeout):
             return {'server_error': 'The server is not reachable this moment\
                     please try again later'}
-
         if response.status_code != 200:
             return {
                 'server_error': 'Server returned status code %i' % response.
@@ -68,7 +67,7 @@ class WPApiConnector(object):
         total_pages = response.headers.get('X-WP-TotalPages', 1)
         try:
             total_pages = int(total_pages)
-        except ValueError:
+        except ValueError:  # pragma: no cover
             total_pages = 1
         for i in range(0, total_pages - 1):
             page += 1
@@ -162,7 +161,7 @@ class WPApiConnector(object):
         total_pages = response.headers.get('X-WP-TotalPages', 1)
         try:
             total_pages = int(total_pages)
-        except ValueError:
+        except ValueError:  # pragma: no cover
             total_pages = 1
         for i in range(0, total_pages - 1):
             page += 1
@@ -201,7 +200,7 @@ class WPApiConnector(object):
         total_pages = response.headers.get('X-WP-TotalPages', 1)
         try:
             total_pages = int(total_pages)
-        except ValueError:
+        except ValueError:  # pragma: no cover
             total_pages = 1
         for i in range(0, total_pages - 1):
             page += 1
