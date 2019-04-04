@@ -8,7 +8,7 @@ try:
 except ImportError:
     from distutils.core import setup
 
-version = '0.1.24'
+version = '0.2.0'
 
 if sys.argv[-1] == 'publish':
     try:
@@ -43,9 +43,9 @@ setup(
     ],
     include_package_data=True,
     install_requires=[
-        'requests==2.11.1',
-        'iso8601==0.1.11',
-        'six==1.10.0',
+        'requests==2.21.0',
+        'iso8601==0.1.12',
+        'six==1.12.0',
         'django>=1.11.20',
     ],
     license="MIT",

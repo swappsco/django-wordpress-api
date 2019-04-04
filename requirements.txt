@@ -1,7 +1,7 @@
 django>=1.11.20
 
 # Additional requirements go here
-requests==2.11.1
-iso8601==0.1.11
+requests==2.21.0
+iso8601==0.1.12
 git+https://github.com/getsentry/responses.git#egg=responses
-six==1.10.0
+six==1.12.0
