@@ -19,5 +19,5 @@ from django.contrib import admin
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'', include('wordpress.urls', namespace='wordpress')),
+    url(r'', include('wordpress_api.urls', namespace='wordpress')),
 ]
